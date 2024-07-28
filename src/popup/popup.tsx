@@ -1,4 +1,3 @@
-import React from 'react';
 import Demo from './components/ColorPicker/ColorPiker';
 
 export const Popup = () => {
