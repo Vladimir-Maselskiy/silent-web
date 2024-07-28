@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "name": "A-React-boilerplate",
+  "description": "react boilerplate for chrome extension",
+  "icons": {
+    "16": "icon-128.png",
+    "48": "icon-128.png",
+    "128": "icon-128.png"
+  },
+  "options_page": "options.html",
+  "action": {
+    "default_title": "A-React-Title",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
