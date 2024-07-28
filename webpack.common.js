@@ -6,8 +6,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: {
-    popup: path.resolve('src/popup/popup.tsx'),
-    options: path.resolve('src/options/options.tsx'),
+    popup: path.resolve('src/popup/index.tsx'),
+    options: path.resolve('src/options/index.tsx'),
     background: path.resolve('src/background/background.ts'),
   },
   module: {
