@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "version": "1.0.0",
+    "name": "A-React-boilerplate",
+    "description": "react boilerplate for chrome extension",
+    "icons" : {
+        "16" : "icon-128.png",
+        "48" : "icon-128.png",
+        "128" : "icon-128.png"
+    } 
+    
+}
