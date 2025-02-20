@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
-import './options.scss';
-import { Options } from './options';
+import './components/Options/options.scss';
+import { Options } from './components/Options/Options';
 import { MemoryRouter as Router } from 'react-router-dom';
 
 const container = document.createElement('div');
