@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "version": "1.0.0",
-  "name": "A-React-boilerplate",
-  "description": "react boilerplate for chrome extension",
+  "name": "SilentWeb",
+  "description": "Tools for remove web content",
   "icons": {
-    "16": "icon-128.png",
-    "48": "icon-128.png",
-    "128": "icon-128.png"
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
   },
   "options_page": "options.html",
   "action": {

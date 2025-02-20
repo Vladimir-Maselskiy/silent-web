@@ -1,11 +1,12 @@
+import { Divider } from 'antd';
 import Demo from './components/ColorPicker/ColorPiker';
+import { Header } from './components/Header/Header';
 
 export const Popup = () => {
   return (
     <div>
-      <p>Hello World</p>
-      <p>React</p>
-      <p>Popup Page</p>
+      <Header />
+      <Divider />
       <Demo />
     </div>
   );
