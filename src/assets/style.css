@@ -1,0 +1,19 @@
+.silent-blocking-extension {
+  background-color: red !important;
+  outline: 2px solid transparent;
+  border: 4px solid red !important;
+  animation: blinkOutline 1s infinite;
+  /* display: none !important; */
+}
+
+@keyframes blinkOutline {
+  0% {
+    outline-color: transparent;
+  }
+  50% {
+    outline-color: red;
+  }
+  100% {
+    outline-color: transparent;
+  }
+}

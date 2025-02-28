@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "version": "1.0.0",
-  "name": "SilentWeb",
+  "name": "AdBlocker-Test-Extension",
   "description": "Tools for remove web content",
   "icons": {
     "16": "logo.png",
@@ -13,9 +13,17 @@
     "default_title": "A-React-Title",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.reddit.com/*"],
+      "js": ["reddit.js"],
+      "css": ["style.css"],
+      "all_frames": true
+    }
+  ]
 }

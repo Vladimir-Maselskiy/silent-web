@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
-import './popup.scss';
-import { Popup } from './popup';
+import './Popup/popup.scss';
+import { Popup } from './Popup/Popup';
 
 const container = document.createElement('div');
 document.body.appendChild(container);

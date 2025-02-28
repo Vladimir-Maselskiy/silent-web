@@ -2,9 +2,9 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
   entry: {
     popup: path.resolve('src/popup/index.tsx'),
     options: path.resolve('src/options/index.tsx'),
@@ -38,6 +38,10 @@ module.exports = {
           from: path.resolve('src/assets'),
           to: path.resolve('dist'),
         },
+        {
+          from: path.resolve('src/js'),
+          to: path.resolve('dist'),
+        },
       ],
     }),
     ...getHtlmPlugins(['popup', 'options']),
@@ -46,6 +50,27 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
     },
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          compress: {
+            drop_console: true, // Видаляє console.log
+            dead_code: true, // Видаляє невикористаний код
+            unused: true, // Видаляє змінні та функції, що не використовуються
+            collapse_vars: true, // Об'єднує змінні, коли можливо
+            reduce_vars: true, // Оптимізує повторно використані змінні
+          },
+          format: {
+            comments: false, // Видаляє коментарі
+          },
+          mangle: {
+            toplevel: true, // Обфускація глобальних змінних
+          },
+        },
+      }),
+    ],
   },
 };
 
