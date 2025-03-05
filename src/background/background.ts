@@ -1,3 +1,6 @@
+import { specialDomains } from './utils/specialDomains';
+
+let activeTabId = null;
 chrome.runtime.onMessage.addListener((message, sender, response) => {
   const { type, data } = message;
 
@@ -7,10 +10,14 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     addItem(data).then(resp => response(resp));
   } else if (type === 'DELETE_TARGET_ITEM') {
     deleteItem(data).then(resp => response(resp));
-  } else if (type === 'SET_IS_CURRENT_DOMAIN_BLOCKING') {
-    setIsCurrentDomainBlocking(data).then(resp => response(resp));
-  } else if (type === 'GET_IS_CURRENT_DOMAIN_BLOCKING') {
-    getIsCurrentDomainBlocking(data).then(resp => response(resp));
+  } else if (type === 'SET_IS_BLOCKING') {
+    setIsBlocking(data).then(resp => response(resp));
+  } else if (type === 'GET_IS_BLOCKING') {
+    getIsBlocking().then(resp => response(resp));
+  } else if (type === 'GET_IS_DEFAULT_CAN_BE_BLOCKING') {
+    getIsDefaultCanBeBlocking().then(resp => response(resp));
+  } else if (type === 'CHECK_TAB_ACTIVE') {
+    response(sender.tab.id === activeTabId);
   }
   return true;
 });
@@ -48,21 +55,29 @@ async function deleteItem(data: any) {
   return { success: true, data: newWebResourceData };
 }
 
-async function setIsCurrentDomainBlocking(data: {
-  isBlocking: boolean;
-  webResourceKey: string;
-}) {
-  const { isBlocking, webResourceKey } = data;
-  const blockingData = (await getFromLocalstorage('blockingData')) || {};
-  blockingData[webResourceKey] = isBlocking;
-  await chrome.storage.local.set({ blockingData });
-  reInitBlokingOnCurrentPage({ webResourceKey, isBlocking });
+async function setIsBlocking(data: { isBlocking: boolean }) {
+  const { isBlocking } = data;
+  if (isBlocking === undefined) return { result: false };
+  await chrome.storage.local.set({ isBlocking });
+  reInitBlokingOnCurrentPage();
   return { result: true };
 }
 
-async function getIsCurrentDomainBlocking(key: string) {
-  const blockingData = (await getFromLocalstorage('blockingData')) || {};
-  return blockingData[key] || false;
+async function getIsBlocking() {
+  const isBlocking = (await getFromLocalstorage('isBlocking')) || false;
+  return isBlocking || false;
+}
+
+async function getIsDefaultCanBeBlocking() {
+  const activeTab = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  if (!activeTab[0]) return;
+  const url = new URL(activeTab[0].url);
+  if (!url?.hostname) return;
+  const domain = url.hostname;
+  return !specialDomains.includes(domain);
 }
 
 function createItemId(data) {
@@ -74,13 +89,7 @@ function createItemId(data) {
   return id;
 }
 
-async function reInitBlokingOnCurrentPage({
-  webResourceKey,
-  isBlocking,
-}: {
-  webResourceKey: string;
-  isBlocking: boolean;
-}) {
+async function reInitBlokingOnCurrentPage() {
   const activeTab = await chrome.tabs.query({
     active: true,
     currentWindow: true,
@@ -88,8 +97,6 @@ async function reInitBlokingOnCurrentPage({
   if (!activeTab[0]) return;
   await chrome.tabs.sendMessage(activeTab[0].id, {
     type: 'REINIT_BLOCKING',
-    webResourceKey,
-    isBlocking,
   });
 }
 
@@ -100,3 +107,13 @@ async function getFromLocalstorage(key: string) {
     });
   });
 }
+
+chrome.tabs.onActivated.addListener(async activeInfo => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (!tab.url || tab.url.startsWith('chrome://')) return;
+    reInitBlokingOnCurrentPage();
+  } catch (error) {
+    console.error('Помилка при оновленні вкладки:', error);
+  }
+});

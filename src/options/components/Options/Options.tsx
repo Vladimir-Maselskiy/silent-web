@@ -3,8 +3,6 @@ import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import {
   Breadcrumb,
   Button,
-  Checkbox,
-  Divider,
   Flex,
   Layout,
   List,
@@ -19,6 +17,7 @@ import { webResourceItems } from './menuItems';
 import { SelectInfo } from 'rc-menu/lib/interface';
 import { OptionsModal } from '../Modal/Modal';
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
+import { ExludedDomains } from '../ExludedDomains/ExludedDomains';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -36,6 +35,7 @@ export const Options = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [exludeDomainsSetting, setExludeDomainsSetting] = useState(false);
 
   useEffect(() => {
     onSelectOption({ key: '1' });
@@ -83,6 +83,12 @@ export const Options = () => {
   };
 
   const onSelectOption = async (e: SelectInfo | { key: string }) => {
+    if (e.key === '7') {
+      setExludeDomainsSetting(true);
+      setWebResourceKey(e.key);
+      return;
+    }
+    setExludeDomainsSetting(false);
     setWebResourceKey(e.key);
     setIsLoading(true);
     const getTargetsByKey = await chrome.runtime.sendMessage({
@@ -152,7 +158,7 @@ export const Options = () => {
                 >
                   <Spin indicator={<LoadingOutlined spin />} size="large" />
                 </Flex>
-              ) : (
+              ) : !exludeDomainsSetting ? (
                 <>
                   <List
                     bordered
@@ -194,12 +200,15 @@ export const Options = () => {
                       </List.Item>
                     )}
                   />
+
                   <Flex justify="end" style={{ marginTop: '20px' }}>
                     <Button type="primary" onClick={showModal}>
                       Add Content
                     </Button>
                   </Flex>
                 </>
+              ) : (
+                <ExludedDomains />
               )}
             </div>
           </Flex>

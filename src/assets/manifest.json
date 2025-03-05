@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "version": "1.0.0",
-  "name": "AdBlocker-Test-Extension",
+  "name": "Silent Web",
   "description": "Tools for remove web content",
   "icons": {
     "16": "logo.png",
@@ -22,6 +22,12 @@
     {
       "matches": ["*://*.reddit.com/*"],
       "js": ["reddit.js"],
+      "css": ["style.css"],
+      "all_frames": true
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["allDomains.js"],
       "css": ["style.css"],
       "all_frames": true
     }

@@ -8,6 +8,7 @@ export const webResourceItems = [
   {
     key: '2',
     label: 'The New York Times',
+    disabled: true,
   },
   {
     key: '3',
@@ -23,5 +24,13 @@ export const webResourceItems = [
     key: '5',
     label: 'Facebook',
     disabled: true,
+  },
+  {
+    key: '6',
+    label: 'All domains',
+  },
+  {
+    key: '7',
+    label: 'Exclude domains',
   },
 ];

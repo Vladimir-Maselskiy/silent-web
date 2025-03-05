@@ -1,10 +1,7 @@
 'use strict';
 
 (async () => {
-  let isObserveStarted = false;
-  let observer = null;
-
-  const webResourceKey = '1';
+  const webResourceKey = '6';
   const selectors = [
     'div',
     'span',
@@ -17,31 +14,29 @@
     'h6',
     'li',
     'a',
-    //   'reddit-recent-pages', //shadowRoot
-    //   'shreddit-subreddit-header', //shadowRoot
     'img',
+    'b',
   ];
 
-  const containerSelectors = [
-    'article',
-    'div[data-testid*="post-unit"]',
-    'li.highlight-list-item',
-    'li[rpl][role="presentation"]',
-    'details',
-    'faceplate-tracker[source="search"][action="view"][noun="trending"]',
-    'shreddit-post[post-title]',
-  ];
+  let isObserveStarted = false;
+  let observer = null;
+  let isStarted = false;
+  const isDefaultCanBeBlocking = await chrome.runtime.sendMessage({
+    type: 'GET_IS_DEFAULT_CAN_BE_BLOCKING',
+  });
+
+  if (!isDefaultCanBeBlocking) return;
+
   async function startScript() {
-    let isBlocking = await chrome.runtime.sendMessage({
+    const isBlocking = await chrome.runtime.sendMessage({
       type: 'GET_IS_BLOCKING',
     });
-    console.log('[reddit] isBlocking', isBlocking);
     if (isBlocking) {
       startBlocking();
-      console.log('[reddit] startBlocking');
+      console.log('[all domains] startBlocking');
     } else {
       stopBlocking();
-      console.log('[reddit] stopBlocking');
+      console.log('[all domains] stopBlocking');
     }
   }
 
@@ -49,7 +44,7 @@
     const targets = await getTargets();
     hideTargets({ targets });
     startObserber(targets);
-    console.log('[reddit] targets', targets);
+    console.log('[all domains] targets', targets);
   }
   async function stopBlocking() {
     if (isObserveStarted) {
@@ -104,56 +99,60 @@
 
   function getTargetContent({ el, target }) {
     if (el.children.length) return null;
-    const { target: targetValue, ignoreCase, removeBlock } = target;
-    const elementText = el.textContent;
+    const { target: targetValue, ignoreCase } = target;
+    const tagName = el.tagName.toLowerCase();
+
+    const targetEl = ['b'].includes(tagName) ? el.parentNode : el;
+    const elementText = targetEl.textContent;
     const isMatch = ignoreCase
       ? elementText.toLowerCase().includes(targetValue.toLowerCase())
       : elementText.includes(targetValue);
     if (!isMatch) return null;
 
-    const targetContent = removeBlock
-      ? el.closest(containerSelectors.join(','))
-      : el;
-    console.log('[reddit] targetValue', targetValue);
-    if (targetContent) {
-      return targetContent;
-    }
-    return el;
-
-    // if (el && el.shadowRoot) {
-    //   console.log('[reddit] targetElement shadowRoot top', el);
-    //   el.shadowRoot.querySelectorAll(selectors.join(',')).forEach(el => {
-    //     console.log('[reddit] targetElement shadowRoot', el);
-    //     const targetElement =
-    //       el.children.length &&
-    //       el.textContent.toLowerCase().includes(target.target.toLowerCase())
-    //         ? el
-    //         : null;
-
-    //     if (targetElement) {
-    //       targetElement.style.background = 'yellow';
-    //       targetElement.classList.add('silent-blocking-extension123');
-    //       targetElement.setAttribute(
-    //         'data-silent-blocking-extension',
-    //         'true'
-    //       );
-    //     }
-    //   });
-    // }
-    // if (el?.nodeName === 'IMG') {
-    //   const textContent = el.alt;
-    //   if (textContent.toLowerCase().includes(target.target.toLowerCase())) {
-    //     el.style.maxWidth = '30%';
-    //     el.classList.add('silent-blocking-extension');
-    //     el.setAttribute('data-silent-blocking-extension', 'true');
-    //   }
-    // }
+    return targetEl;
   }
+
+  // async function checkActiveTabAndStart() {
+  //   if (isStarted) return;
+  //   console.log('[Content Script] Start');
+
+  //   const isActive = await chrome.runtime.sendMessage({
+  //     type: 'CHECK_TAB_ACTIVE',
+  //   });
+  //   if (!isActive) {
+  //     console.log('[Content Script] Вкладка не активна, зупиняюсь.');
+  //     return;
+  //   }
+
+  //   console.log('[Content Script] Вкладка активна, виконую код...');
+  //   console.log('[Content Script] isStarted', isStarted);
+  //   isStarted = true;
+  //   startScript();
+  // }
+
+  // checkActiveTabAndStart();
+
+  // chrome.runtime.onMessage.addListener(async (request, sender, response) => {
+  //   if (
+  //     request.type === 'REINIT_BLOCKING' &&
+  //     request.webResourceKey === webResourceKey
+  //   ) {
+  //     checkActiveTabAndStart();
+
+  //     return response(true);
+  //   }
+  // });
+
+  // chrome.runtime.onMessage.addListener(message => {
+  //   if (message.type === 'ACTIVATE_TAB') {
+  //     checkActiveTabAndStart();
+  //   }
+  // });
 
   startScript();
 
   chrome.runtime.onMessage.addListener(async (request, sender, response) => {
-    if (request.type === 'REINIT_BLOCKING') {
+    if (request.type === 'REINIT_BLOCKING' && isDefaultCanBeBlocking) {
       startScript();
 
       return response(true);

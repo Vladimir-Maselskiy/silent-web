@@ -13,8 +13,8 @@ const IconMap = {
 
 export const Popup = () => {
   const [domain, setDomain] = useState('');
-  const [domainId, setDomainId] = useState('');
-  const [isBlocking, setIsBlocking] = useState(false);
+  const [domainId, setDomainId] = useState('6');
+  const [isBlocking, setIsBlocking] = useState(undefined);
   useEffect(() => {
     try {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -34,23 +34,23 @@ export const Popup = () => {
     if (!domain) return;
     if (domain === 'www.reddit.com') {
       setDomainId('1');
+    } else {
+      setDomainId('6');
     }
   }, [domain]);
 
   useEffect(() => {
     if (!domainId) return;
-    chrome.runtime
-      .sendMessage({ type: 'GET_IS_CURRENT_DOMAIN_BLOCKING', data: domainId })
-      .then(resp => {
-        if (resp) setIsBlocking(resp);
-      });
+    chrome.runtime.sendMessage({ type: 'GET_IS_BLOCKING' }).then(resp => {
+      if (resp) setIsBlocking(resp);
+    });
   }, [domainId]);
 
   useEffect(() => {
     if (!domainId) return;
     chrome.runtime.sendMessage({
-      type: 'SET_IS_CURRENT_DOMAIN_BLOCKING',
-      data: { isBlocking, webResourceKey: domainId },
+      type: 'SET_IS_BLOCKING',
+      data: { isBlocking },
     });
   }, [isBlocking]);
 
