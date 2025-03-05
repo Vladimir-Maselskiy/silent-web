@@ -18,6 +18,12 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     getIsDefaultCanBeBlocking().then(resp => response(resp));
   } else if (type === 'CHECK_TAB_ACTIVE') {
     response(sender.tab.id === activeTabId);
+  } else if (type === 'GET_EXCLUDED_DOMAINS') {
+    getExcludedDomains().then(resp => response(resp));
+  } else if (type === 'SET_EXCLUDED_DOMAINS') {
+    setExcludedDomains(data).then(resp => response(resp));
+  } else if (type === 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS') {
+    getIsActiveTabDomainInExcludedDomains().then(resp => response(resp));
   }
   return true;
 });
@@ -65,7 +71,23 @@ async function setIsBlocking(data: { isBlocking: boolean }) {
 
 async function getIsBlocking() {
   const isBlocking = (await getFromLocalstorage('isBlocking')) || false;
-  return isBlocking || false;
+  const isActiveTabDomainInExcludedDomains =
+    await getIsActiveTabDomainInExcludedDomains();
+  return (isBlocking && !isActiveTabDomainInExcludedDomains) || false;
+}
+
+async function getIsActiveTabDomainInExcludedDomains() {
+  const activeTab = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  if (!activeTab[0]) return;
+  const url = new URL(activeTab[0].url);
+  if (!url?.hostname) return;
+  const domain = url.hostname;
+  const excludedDomains: string[] =
+    ((await getFromLocalstorage('excludedDomains')) as string[]) || [];
+  return excludedDomains.includes(domain);
 }
 
 async function getIsDefaultCanBeBlocking() {
@@ -79,6 +101,19 @@ async function getIsDefaultCanBeBlocking() {
   const domain = url.hostname;
   return !specialDomains.includes(domain);
 }
+
+async function getExcludedDomains() {
+  const excludedDomains = (await getFromLocalstorage('excludedDomains')) || [];
+  return excludedDomains;
+}
+
+async function setExcludedDomains(excludedDomains: string[]) {
+  await chrome.storage.local.set({ excludedDomains });
+  return { result: true };
+}
+
+
+
 
 function createItemId(data) {
   const { ignoreCase, removeBlock, webResourceKey, target } = data;

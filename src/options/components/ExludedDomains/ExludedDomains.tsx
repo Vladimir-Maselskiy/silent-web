@@ -6,7 +6,7 @@ import { TweenOneGroup } from 'rc-tween-one';
 
 export const ExludedDomains = () => {
   const { token } = theme.useToken();
-  const [tags, setTags] = useState(['www.reddit.com']);
+  const [tags, setTags] = useState([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<InputRef>(null);
@@ -18,8 +18,22 @@ export const ExludedDomains = () => {
   }, [inputVisible]);
 
   useEffect(() => {
-    chrome.storage.local.get(['exludedDomains'], function (result) {});
+    (async function () {
+      const excludedDomains = await chrome.runtime.sendMessage({
+        type: 'GET_EXCLUDED_DOMAINS',
+      });
+      console.log('excludedDomains', excludedDomains);
+
+      setTags(excludedDomains);
+    })();
   }, []);
+
+  useEffect(() => {
+    chrome.runtime.sendMessage({
+      type: 'SET_EXCLUDED_DOMAINS',
+      data: tags,
+    });
+  }, [tags]);
 
   const handleClose = (removedTag: string) => {
     const newTags = tags.filter(tag => tag !== removedTag);
@@ -85,7 +99,7 @@ export const ExludedDomains = () => {
           ref={inputRef}
           type="text"
           size="small"
-          style={{ width: 78 }}
+          style={{ width: 120 }}
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputConfirm}
@@ -93,7 +107,7 @@ export const ExludedDomains = () => {
         />
       ) : (
         <Tag onClick={showInput} style={tagPlusStyle}>
-          <PlusOutlined /> New Tag
+          <PlusOutlined /> Add exluded domain
         </Tag>
       )}
     </>

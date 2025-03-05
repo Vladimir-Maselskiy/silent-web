@@ -15,6 +15,18 @@ export const Popup = () => {
   const [domain, setDomain] = useState('');
   const [domainId, setDomainId] = useState('6');
   const [isBlocking, setIsBlocking] = useState(undefined);
+  const [isDomainInExcludedDomains, setIsDomainInExcludedDomains] =
+    useState(false);
+
+  useEffect(() => {
+    (async function () {
+      const isDomainInExcludedDomains = await chrome.runtime.sendMessage({
+        type: 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS',
+      });
+      setIsDomainInExcludedDomains(isDomainInExcludedDomains);
+    })();
+  });
+
   useEffect(() => {
     try {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -63,15 +75,21 @@ export const Popup = () => {
       <Header />
       <Divider />
       {domain && (
-        <>
+        <Flex vertical align="center">
+          <Typography.Text>domain name:</Typography.Text>
           <Flex align="center" justify="center" gap={8}>
             <Typography.Text style={{ fontSize: '24px' }}>
               {domain}
             </Typography.Text>
             {IconMap[domainId]}
           </Flex>
+          {isDomainInExcludedDomains && (
+            <Typography.Text style={{ color: 'red' }}>
+              is in excluded domains
+            </Typography.Text>
+          )}
           <Divider />
-        </>
+        </Flex>
       )}
       <Flex justify="center">
         <Button
