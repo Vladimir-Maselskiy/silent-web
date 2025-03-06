@@ -46,32 +46,32 @@ module.exports = {
     }),
     ...getHtlmPlugins(['popup', 'options']),
   ],
-  // optimization: {
-  //   splitChunks: {
-  //     chunks: 'all',
-  //   },
-  //   minimize: true,
-  //   minimizer: [
-  //     new TerserPlugin({
-  //       extractComments: false,
-  //       terserOptions: {
-  //         compress: {
-  //           drop_console: true, // Видаляє console.log
-  //           dead_code: true, // Видаляє невикористаний код
-  //           unused: true, // Видаляє змінні та функції, що не використовуються
-  //           collapse_vars: true, // Об'єднує змінні, коли можливо
-  //           reduce_vars: true, // Оптимізує повторно використані змінні
-  //         },
-  //         format: {
-  //           comments: false, // Видаляє коментарі
-  //         },
-  //         mangle: {
-  //           toplevel: true, // Обфускація глобальних змінних
-  //         },
-  //       },
-  //     }),
-  //   ],
-  // },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          compress: {
+            drop_console: true, // Видаляє console.log
+            dead_code: true, // Видаляє невикористаний код
+            unused: true, // Видаляє змінні та функції, що не використовуються
+            collapse_vars: true, // Об'єднує змінні, коли можливо
+            reduce_vars: true, // Оптимізує повторно використані змінні
+          },
+          format: {
+            comments: false, // Видаляє коментарі
+          },
+          mangle: {
+            toplevel: true, // Обфускація глобальних змінних
+          },
+        },
+      }),
+    ],
+  },
 };
 
 function getHtlmPlugins(chunks) {

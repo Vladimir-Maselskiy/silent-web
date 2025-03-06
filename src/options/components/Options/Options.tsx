@@ -76,7 +76,6 @@ export const Options = () => {
       type: 'DELETE_TARGET_ITEM',
       data: { id: targetId, webResourceKey },
     });
-
     if (result.success === true) {
       setTargets(result.data);
     }
@@ -139,10 +138,17 @@ export const Options = () => {
           <Flex vertical style={{ flexGrow: 1 }}>
             <Breadcrumb
               style={{ padding: '16px', borderBottom: '1px solid #ccc' }}
-            >
-              <Breadcrumb.Item>WebResource</Breadcrumb.Item>
-              <Breadcrumb.Item>{webResourceLabel}</Breadcrumb.Item>
-            </Breadcrumb>
+              items={[
+                {
+                  title: 'WebResource',
+                },
+                {
+                  title: ':id',
+                  href: '',
+                },
+              ]}
+              params={{ id: webResourceLabel }}
+            ></Breadcrumb>
             <div
               style={{
                 padding: 24,

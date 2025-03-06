@@ -112,9 +112,6 @@ async function setExcludedDomains(excludedDomains: string[]) {
   return { result: true };
 }
 
-
-
-
 function createItemId(data) {
   const { ignoreCase, removeBlock, webResourceKey, target } = data;
   const id =
