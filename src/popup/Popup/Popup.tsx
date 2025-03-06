@@ -1,4 +1,4 @@
-import { Button, Divider, Flex, Typography } from 'antd';
+import { Button, Divider, Flex, Switch, Typography } from 'antd';
 import { Header } from '../components/Header/Header';
 import { useEffect, useState } from 'react';
 import {
@@ -8,15 +8,17 @@ import {
 } from '@ant-design/icons';
 
 const IconMap = {
-  '1': <RedditOutlined style={{ fontSize: '24px' }} />,
+  '2': <RedditOutlined style={{ fontSize: '24px' }} />,
 };
 
 export const Popup = () => {
   const [domain, setDomain] = useState('');
-  const [domainId, setDomainId] = useState('6');
+  const [domainId, setDomainId] = useState('1');
   const [isBlocking, setIsBlocking] = useState(undefined);
   const [isDomainInExcludedDomains, setIsDomainInExcludedDomains] =
     useState(false);
+  const [styleSwitchValue, setStyleSwitchValue] = useState(null);
+  const [isStyleSwitchDisabled, setIsStyleSwitchDisabled] = useState(false);
 
   useEffect(() => {
     (async function () {
@@ -25,7 +27,7 @@ export const Popup = () => {
       });
       setIsDomainInExcludedDomains(isDomainInExcludedDomains);
     })();
-  });
+  }, []);
 
   useEffect(() => {
     try {
@@ -37,6 +39,11 @@ export const Popup = () => {
           setDomain(domain);
         }
       });
+      chrome.runtime.sendMessage({ type: 'GET_STYLE' }).then(resp => {
+        if (resp) {
+          setStyleSwitchValue(resp);
+        }
+      });
     } catch (error) {
       console.error(error);
     }
@@ -45,9 +52,9 @@ export const Popup = () => {
   useEffect(() => {
     if (!domain) return;
     if (domain === 'www.reddit.com') {
-      setDomainId('1');
+      setDomainId('2');
     } else {
-      setDomainId('6');
+      setDomainId('1');
     }
   }, [domain]);
 
@@ -64,10 +71,43 @@ export const Popup = () => {
       type: 'SET_IS_BLOCKING',
       data: { isBlocking },
     });
+    isBlocking
+      ? setIsStyleSwitchDisabled(false)
+      : setIsStyleSwitchDisabled(true);
   }, [isBlocking]);
 
   const onBlockingButtonClick = () => {
     setIsBlocking(prev => !prev);
+  };
+
+  const onStyleSwitchChange = async (value: boolean) => {
+    const view = value ? 'on' : 'off';
+    await chrome.runtime.sendMessage({ type: 'SET_STYLE', data: view });
+    chrome.runtime.sendMessage({ type: 'GET_STYLE' }).then(resp => {
+      if (resp) {
+        setStyleSwitchValue(resp);
+      }
+    });
+  };
+
+  const toggleDomainInExcludedDomains = async () => {
+    if (isDomainInExcludedDomains) {
+      const result = await chrome.runtime.sendMessage({
+        type: 'REMOVE_CURRENT_DOMAIN_FROM_EXCLUDED_DOMAINS',
+      });
+      console.log(result);
+    } else {
+      const result = await chrome.runtime.sendMessage({
+        type: 'ADD_CURRENT_DOMAIN_TO_EXCLUDED_DOMAINS',
+      });
+      console.log(result);
+    }
+    const newValue = await chrome.runtime.sendMessage({
+      type: 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS',
+    });
+    console.log('newValue', newValue);
+    setIsDomainInExcludedDomains(newValue);
+    chrome.runtime.sendMessage({ type: 'REINIT_BLOCKING' });
   };
 
   return (
@@ -83,15 +123,21 @@ export const Popup = () => {
             </Typography.Text>
             {IconMap[domainId]}
           </Flex>
-          {isDomainInExcludedDomains && (
-            <Typography.Text style={{ color: 'red' }}>
-              is in excluded domains
-            </Typography.Text>
-          )}
+
+          <Typography.Text style={{ color: 'red', minHeight: '24px' }}>
+            {isDomainInExcludedDomains ? 'is in excluded domains' : ' '}
+          </Typography.Text>
+
+          <Divider />
+          <Button type="dashed" onClick={toggleDomainInExcludedDomains}>
+            {isDomainInExcludedDomains
+              ? 'Remove from excluded'
+              : 'Add to excluded'}
+          </Button>
           <Divider />
         </Flex>
       )}
-      <Flex justify="center">
+      <Flex justify="space-around" align="center" gap={8}>
         <Button
           type="primary"
           disabled={!domainId}
@@ -100,6 +146,15 @@ export const Popup = () => {
         >
           {isBlocking ? 'Stop blocking' : 'Start blocking'}
         </Button>
+        {styleSwitchValue && (
+          <Switch
+            onChange={onStyleSwitchChange}
+            checkedChildren="Blur"
+            unCheckedChildren="Remove"
+            checked={styleSwitchValue === 'on'}
+            disabled={isStyleSwitchDisabled}
+          />
+        )}
       </Flex>
     </>
   );

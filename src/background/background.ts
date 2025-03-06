@@ -24,6 +24,16 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     setExcludedDomains(data).then(resp => response(resp));
   } else if (type === 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS') {
     getIsActiveTabDomainInExcludedDomains().then(resp => response(resp));
+  } else if (type === 'ADD_CURRENT_DOMAIN_TO_EXCLUDED_DOMAINS') {
+    addCurrentDomainToExcludedDomains().then(resp => response(resp));
+  } else if (type === 'REMOVE_CURRENT_DOMAIN_FROM_EXCLUDED_DOMAINS') {
+    removeCurrentDomainFromExcludedDomains().then(resp => response(resp));
+  } else if (type === 'REINIT_BLOCKING') {
+    reInitBlokingOnCurrentPage().then(resp => response(resp));
+  } else if (type === 'SET_STYLE') {
+    setStyle(data).then(resp => response(resp));
+  } else if (type === 'GET_STYLE') {
+    getStyle().then(resp => response(resp));
   }
   return true;
 });
@@ -77,17 +87,52 @@ async function getIsBlocking() {
 }
 
 async function getIsActiveTabDomainInExcludedDomains() {
-  const activeTab = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  if (!activeTab[0]) return;
-  const url = new URL(activeTab[0].url);
+  const activeTab = await getActiveTab();
+  if (!activeTab) return;
+  const url = new URL(activeTab.url);
   if (!url?.hostname) return;
   const domain = url.hostname;
   const excludedDomains: string[] =
     ((await getFromLocalstorage('excludedDomains')) as string[]) || [];
   return excludedDomains.includes(domain);
+}
+
+async function addCurrentDomainToExcludedDomains() {
+  const activeTab = await getActiveTab();
+  if (!activeTab) return { result: false };
+  const url = new URL(activeTab.url);
+  if (!url?.hostname) return { result: false };
+  const domain = url.hostname;
+  const excludedDomains: string[] =
+    ((await getFromLocalstorage('excludedDomains')) as string[]) || [];
+  if (excludedDomains.includes(domain)) return { result: false };
+  excludedDomains.push(domain);
+  await setExcludedDomains(excludedDomains);
+  return { result: true };
+}
+
+async function removeCurrentDomainFromExcludedDomains() {
+  const activeTab = await getActiveTab();
+  if (!activeTab) return { result: false };
+  const url = new URL(activeTab.url);
+  if (!url?.hostname) return { result: false };
+  const domain = url.hostname;
+  const excludedDomains: string[] =
+    ((await getFromLocalstorage('excludedDomains')) as string[]) || [];
+  if (!excludedDomains.includes(domain)) return { result: false };
+  excludedDomains.splice(excludedDomains.indexOf(domain), 1);
+  await setExcludedDomains(excludedDomains);
+  return { result: true };
+}
+
+async function getActiveTab() {
+  const activeTab = await chrome.tabs.query({
+    active: true,
+    // lastFocusedWindow: true,
+  });
+  console.log('activeTab', activeTab);
+
+  return activeTab[0] || null;
 }
 
 async function getIsDefaultCanBeBlocking() {
@@ -122,14 +167,32 @@ function createItemId(data) {
 }
 
 async function reInitBlokingOnCurrentPage() {
-  const activeTab = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  if (!activeTab[0]) return;
-  await chrome.tabs.sendMessage(activeTab[0].id, {
-    type: 'REINIT_BLOCKING',
-  });
+  const activeTab = await getActiveTab();
+  if (!activeTab) return;
+  chrome.tabs.sendMessage(
+    activeTab.id,
+    {
+      type: 'REINIT_BLOCKING',
+    },
+    _ => {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          'Options page is not available:',
+          chrome.runtime.lastError
+        );
+      }
+    }
+  );
+}
+
+async function setStyle(view: 'on' | 'off') {
+  if (!view) return;
+  await chrome.storage.local.set({ style: view });
+  reInitBlokingOnCurrentPage();
+}
+
+async function getStyle() {
+  return (await getFromLocalstorage('style')) || 'on';
 }
 
 async function getFromLocalstorage(key: string) {

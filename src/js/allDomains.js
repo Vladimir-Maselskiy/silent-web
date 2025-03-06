@@ -1,7 +1,7 @@
 'use strict';
 
 (async () => {
-  const webResourceKey = '6';
+  const webResourceKey = '1';
   const selectors = [
     'div',
     'span',
@@ -20,7 +20,6 @@
 
   let isObserveStarted = false;
   let observer = null;
-  let isStarted = false;
   const isDefaultCanBeBlocking = await chrome.runtime.sendMessage({
     type: 'GET_IS_DEFAULT_CAN_BE_BLOCKING',
   });
@@ -42,10 +41,13 @@
 
   async function startBlocking() {
     const targets = await getTargets();
-    hideTargets({ targets });
-    startObserber(targets);
+    const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
+
+    hideTargets({ targets, hideStyle });
+    startObserber({ targets, hideStyle });
     console.log('[all domains] targets', targets);
   }
+
   async function stopBlocking() {
     if (isObserveStarted) {
       observer.disconnect();
@@ -56,6 +58,7 @@
     );
     observedTargets.forEach(el => {
       el.classList.remove('silent-blocking-extension');
+      el.classList.remove('hidden');
       el.removeAttribute('data-silent-blocking-extension');
     });
   }
@@ -67,7 +70,7 @@
     });
   }
 
-  function hideTargets({ targets }) {
+  function hideTargets({ targets, hideStyle }) {
     const targetElement = document.body;
     // const targetElement = element ? element : document.body;
     targets.forEach(target => {
@@ -77,17 +80,20 @@
 
         if (targetElement) {
           targetElement.classList.add('silent-blocking-extension');
+          hideStyle === 'off'
+            ? targetElement.classList.add('hidden')
+            : targetElement.classList.remove('hidden');
           targetElement.setAttribute('data-silent-blocking-extension', 'true');
         }
       });
     });
   }
 
-  function startObserber(targets) {
+  function startObserber({ targets, hideStyle }) {
     if (isObserveStarted) return;
     isObserveStarted = true;
     observer = new MutationObserver(mutations => {
-      hideTargets({ targets });
+      hideTargets({ targets, hideStyle });
     });
 
     observer.observe(document.body, {
@@ -112,42 +118,7 @@
     return targetEl;
   }
 
-  // async function checkActiveTabAndStart() {
-  //   if (isStarted) return;
-  //   console.log('[Content Script] Start');
-
-  //   const isActive = await chrome.runtime.sendMessage({
-  //     type: 'CHECK_TAB_ACTIVE',
-  //   });
-  //   if (!isActive) {
-  //     console.log('[Content Script] Вкладка не активна, зупиняюсь.');
-  //     return;
-  //   }
-
-  //   console.log('[Content Script] Вкладка активна, виконую код...');
-  //   console.log('[Content Script] isStarted', isStarted);
-  //   isStarted = true;
-  //   startScript();
-  // }
-
-  // checkActiveTabAndStart();
-
-  // chrome.runtime.onMessage.addListener(async (request, sender, response) => {
-  //   if (
-  //     request.type === 'REINIT_BLOCKING' &&
-  //     request.webResourceKey === webResourceKey
-  //   ) {
-  //     checkActiveTabAndStart();
-
-  //     return response(true);
-  //   }
-  // });
-
-  // chrome.runtime.onMessage.addListener(message => {
-  //   if (message.type === 'ACTIVATE_TAB') {
-  //     checkActiveTabAndStart();
-  //   }
-  // });
+  /
 
   startScript();
 

@@ -4,7 +4,7 @@
   let isObserveStarted = false;
   let observer = null;
 
-  const webResourceKey = '1';
+  const webResourceKey = '2';
   const selectors = [
     'div',
     'span',
@@ -35,6 +35,7 @@
     let isBlocking = await chrome.runtime.sendMessage({
       type: 'GET_IS_BLOCKING',
     });
+
     console.log('[reddit] isBlocking', isBlocking);
     if (isBlocking) {
       startBlocking();
@@ -47,8 +48,10 @@
 
   async function startBlocking() {
     const targets = await getTargets();
-    hideTargets({ targets });
-    startObserber(targets);
+    const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
+
+    hideTargets({ targets, hideStyle });
+    startObserber({ targets, hideStyle });
     console.log('[reddit] targets', targets);
   }
   async function stopBlocking() {
@@ -61,6 +64,7 @@
     );
     observedTargets.forEach(el => {
       el.classList.remove('silent-blocking-extension');
+      el.classList.remove('hidden');
       el.removeAttribute('data-silent-blocking-extension');
     });
   }
@@ -72,7 +76,7 @@
     });
   }
 
-  function hideTargets({ targets }) {
+  function hideTargets({ targets, hideStyle }) {
     const targetElement = document.body;
     // const targetElement = element ? element : document.body;
     targets.forEach(target => {
@@ -82,17 +86,20 @@
 
         if (targetElement) {
           targetElement.classList.add('silent-blocking-extension');
+          hideStyle === 'off'
+            ? targetElement.classList.add('hidden')
+            : targetElement.classList.remove('hidden');
           targetElement.setAttribute('data-silent-blocking-extension', 'true');
         }
       });
     });
   }
 
-  function startObserber(targets) {
+  function startObserber({ targets, hideStyle }) {
     if (isObserveStarted) return;
     isObserveStarted = true;
     observer = new MutationObserver(mutations => {
-      hideTargets({ targets });
+      hideTargets({ targets, hideStyle });
     });
 
     observer.observe(document.body, {
