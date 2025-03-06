@@ -20,6 +20,7 @@
 
   let isObserveStarted = false;
   let observer = null;
+  let isStarted = false;
   const isDefaultCanBeBlocking = await chrome.runtime.sendMessage({
     type: 'GET_IS_DEFAULT_CAN_BE_BLOCKING',
   });
@@ -117,8 +118,6 @@
 
     return targetEl;
   }
-
-  /
 
   startScript();
 
