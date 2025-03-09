@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import {
   Breadcrumb,
   Button,
@@ -10,6 +15,7 @@ import {
   Popover,
   Spin,
   Switch,
+  Table,
   Typography,
 } from 'antd';
 import { Logo } from '../../../popup/components/Logo/Logo';
@@ -49,6 +55,55 @@ export const Options = () => {
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
   const handleCancelConfirmModal = () => setIsConfirmModalOpen(false);
+
+  const renderCell = (value: boolean) => (
+    <Flex align="center" gap={4}>
+      {value ? (
+        <CheckOutlined style={{ color: 'green' }} />
+      ) : (
+        <CloseOutlined style={{ color: 'red' }} />
+      )}
+      {<Typography.Text>{value ? 'Yes' : 'No'}</Typography.Text>}
+    </Flex>
+  );
+
+  const columns = [
+    {
+      title: 'Word/phrase',
+      dataIndex: 'target',
+      key: 'target',
+    },
+    {
+      title: 'Ignore case',
+      dataIndex: 'ignoreCase',
+      key: 'ignoreCase',
+      render: renderCell,
+    },
+    {
+      title: 'Search block',
+      dataIndex: 'removeBlock',
+      key: 'removeBlock',
+      render: renderCell,
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Popover
+          title="Delete"
+          trigger="click"
+          content={
+            <Button type="primary" onClick={() => deleteTarget(record.id)}>
+              Ok
+            </Button>
+          }
+        >
+          <DeleteOutlined />
+        </Popover>
+      ),
+    },
+  ];
 
   const addItem = async ({
     target,
@@ -166,48 +221,12 @@ export const Options = () => {
                 </Flex>
               ) : !exludeDomainsSetting ? (
                 <>
-                  <List
-                    bordered
+                  <Table
                     dataSource={targets}
-                    style={{
-                      overflowY: 'scroll',
-                      maxHeight: 'calc(100vh - 245px)',
-                    }}
-                    renderItem={(target, index) => (
-                      <List.Item key={target.id}>
-                        <Flex gap={8} style={{ width: '40%' }}>
-                          <Typography.Text>Target: </Typography.Text>
-                          <Typography.Text>{target.target}</Typography.Text>
-                        </Flex>
-                        <Flex style={{ width: '25%' }} gap={8}>
-                          <Switch checked={target.ignoreCase} disabled />
-                          <Typography.Text>Ignore case</Typography.Text>
-                        </Flex>
-                        <Flex style={{ width: '25%' }} gap={8}>
-                          <Switch checked={target.removeBlock} disabled />
-                          <Typography.Text>Block</Typography.Text>
-                        </Flex>
-                        <Flex style={{ width: '10%' }} gap={8}>
-                          <Popover
-                            title="Delete"
-                            trigger="click"
-                            content={
-                              <Button
-                                type="primary"
-                                onClick={() => deleteTarget(target.id)}
-                              >
-                                Ok
-                              </Button>
-                            }
-                          >
-                            <DeleteOutlined />
-                          </Popover>
-                        </Flex>
-                      </List.Item>
-                    )}
+                    columns={columns}
+                    pagination={{ pageSize: 7 }}
                   />
-
-                  <Flex justify="end" style={{ marginTop: '20px' }}>
+                  <Flex justify="end">
                     <Button type="primary" onClick={showModal}>
                       Add Content
                     </Button>

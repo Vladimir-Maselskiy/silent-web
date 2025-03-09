@@ -106,7 +106,7 @@
 
   function getTargetContent({ el, target }) {
     if (el.children.length) return null;
-    const { target: targetValue, ignoreCase } = target;
+    const { target: targetValue, ignoreCase, removeBlock } = target;
     const tagName = el.tagName.toLowerCase();
 
     const targetEl = ['b'].includes(tagName) ? el.parentNode : el;
@@ -115,6 +115,11 @@
       ? elementText.toLowerCase().includes(targetValue.toLowerCase())
       : elementText.includes(targetValue);
     if (!isMatch) return null;
+
+    const targetContent = removeBlock ? targetEl.closest('div') : targetEl;
+    if (targetContent) {
+      return targetContent;
+    }
 
     return targetEl;
   }
