@@ -140,7 +140,7 @@ async function getIsDefaultCanBeBlocking() {
     active: true,
     currentWindow: true,
   });
-  if (!activeTab[0]) return;
+  if (!activeTab[0]?.url) return;
   const url = new URL(activeTab[0].url);
   if (!url?.hostname) return;
   const domain = url.hostname;

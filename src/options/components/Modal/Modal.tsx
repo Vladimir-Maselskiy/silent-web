@@ -3,8 +3,8 @@ import { Button, Checkbox, Divider, Input, Modal } from 'antd';
 import type { CheckboxProps } from 'antd';
 
 const CheckboxGroup = Checkbox.Group;
-const plainOptions = ['Ignore case', 'Block'];
-const defaultCheckedList = ['Ignore case', 'Block'];
+const plainOptions = ['Ignore case', 'Search block'];
+const defaultCheckedList = ['Ignore case', 'Search block'];
 
 type TProps = {
   isModalOpen: boolean;

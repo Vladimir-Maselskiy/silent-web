@@ -10,11 +10,9 @@ import {
   Button,
   Flex,
   Layout,
-  List,
   Menu,
   Popover,
   Spin,
-  Switch,
   Table,
   Typography,
 } from 'antd';
@@ -113,7 +111,7 @@ export const Options = () => {
     checkedList: string[];
   }) => {
     const ignoreCase = checkedList.includes('Ignore case');
-    const removeBlock = checkedList.includes('Block');
+    const removeBlock = checkedList.includes('Search block');
     const result = await chrome.runtime.sendMessage({
       type: 'ADD_ITEM',
       data: { target, ignoreCase, removeBlock, webResourceKey },
