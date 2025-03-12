@@ -1,7 +1,6 @@
 'use strict';
 
 (async () => {
-  let isObserveStarted = false;
   let observer = null;
 
   const webResourceKey = '2';
@@ -31,6 +30,14 @@
     'faceplate-tracker[source="search"][action="view"][noun="trending"]',
     'shreddit-post[post-title]',
   ];
+
+  const shadowDomSelectors = [
+    {
+      selector: 'faceplate-screen-reader-content',
+      containerSelector: 'div[data-testid="search-post-unit"]',
+    },
+  ];
+
   async function startScript() {
     let isBlocking = await chrome.runtime.sendMessage({
       type: 'GET_IS_BLOCKING',
@@ -51,14 +58,14 @@
     const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
 
     hideTargets({ targets, hideStyle });
+    hideShadowDaomTargets({ targets, hideStyle });
+
     startObserber({ targets, hideStyle });
     console.log('[reddit] targets', targets);
   }
   async function stopBlocking() {
-    if (isObserveStarted) {
-      observer.disconnect();
-      isObserveStarted = false;
-    }
+    observer && observer.disconnect();
+
     const observedTargets = document.querySelectorAll(
       '.silent-blocking-extension'
     );
@@ -94,10 +101,29 @@
       });
     });
   }
+  function hideShadowDaomTargets({ targets, hideStyle }) {
+    const targetElement = document.body;
+    // const targetElement = element ? element : document.body;
+    targets.forEach(target => {
+      const elements = targetElement.querySelectorAll(
+        shadowDomSelectors.map(({ selector }) => selector).join(',')
+      );
+      elements.forEach(el => {
+        const targetElement = getShadowDomTargetContent({ el, target });
+
+        if (targetElement) {
+          targetElement.classList.add('silent-blocking-extension');
+          hideStyle === 'off'
+            ? targetElement.classList.add('hidden')
+            : targetElement.classList.remove('hidden');
+          targetElement.setAttribute('data-silent-blocking-extension', 'true');
+        }
+      });
+    });
+  }
 
   function startObserber({ targets, hideStyle }) {
-    if (isObserveStarted) return;
-    isObserveStarted = true;
+    observer && observer.disconnect();
     observer = new MutationObserver(mutations => {
       hideTargets({ targets, hideStyle });
     });
@@ -126,35 +152,25 @@
       return targetContent;
     }
     return el;
+  }
+  function getShadowDomTargetContent({ el, target }) {
+    if (!el || !el.shadowRoot) return null;
+    const { target: targetValue, ignoreCase } = target;
+    const elementText = el.textContent;
+    const isMatch = ignoreCase
+      ? elementText.toLowerCase().includes(targetValue.toLowerCase())
+      : elementText.includes(targetValue);
+    if (isMatch) {
+      const tagName = el.tagName.toLowerCase();
+      const currentSelector = shadowDomSelectors.find(
+        shadowDomSelector => shadowDomSelector.selector === tagName
+      );
+      if (!currentSelector) return null;
+      const targetEl = el.closest(currentSelector.containerSelector);
 
-    // if (el && el.shadowRoot) {
-    //   console.log('[reddit] targetElement shadowRoot top', el);
-    //   el.shadowRoot.querySelectorAll(selectors.join(',')).forEach(el => {
-    //     console.log('[reddit] targetElement shadowRoot', el);
-    //     const targetElement =
-    //       el.children.length &&
-    //       el.textContent.toLowerCase().includes(target.target.toLowerCase())
-    //         ? el
-    //         : null;
-
-    //     if (targetElement) {
-    //       targetElement.style.background = 'yellow';
-    //       targetElement.classList.add('silent-blocking-extension123');
-    //       targetElement.setAttribute(
-    //         'data-silent-blocking-extension',
-    //         'true'
-    //       );
-    //     }
-    //   });
-    // }
-    // if (el?.nodeName === 'IMG') {
-    //   const textContent = el.alt;
-    //   if (textContent.toLowerCase().includes(target.target.toLowerCase())) {
-    //     el.style.maxWidth = '30%';
-    //     el.classList.add('silent-blocking-extension');
-    //     el.setAttribute('data-silent-blocking-extension', 'true');
-    //   }
-    // }
+      return targetEl;
+    }
+    return null;
   }
 
   startScript();

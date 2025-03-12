@@ -187,6 +187,7 @@ async function reInitBlokingOnCurrentPage() {
 
 async function setStyle(view: 'on' | 'off') {
   if (!view) return;
+  console.log('setStyle', view);
   await chrome.storage.local.set({ style: view });
   reInitBlokingOnCurrentPage();
 }

@@ -22,6 +22,7 @@
     ];
 
     console.log('all domains] before start');
+    console.log(typeof throttle);
 
     let isObserveStarted = false;
     let observer = null;
@@ -32,10 +33,7 @@
 
     if (!isDefaultCanBeBlocking) return;
 
-    async function startScript() {
-      const isBlocking = await chrome.runtime.sendMessage({
-        type: 'GET_IS_BLOCKING',
-      });
+    const throttledToggleBlocking = throttle(isBlocking => {
       if (isBlocking) {
         startBlocking();
         console.log('[all domains] startBlocking');
@@ -43,29 +41,37 @@
         stopBlocking();
         console.log('[all domains] stopBlocking');
       }
+    }, 500);
+
+    async function startScript() {
+      console.log('[all domains] startScript');
+      const isBlocking = await chrome.runtime.sendMessage({
+        type: 'GET_IS_BLOCKING',
+      });
+      throttledToggleBlocking(isBlocking);
     }
 
     async function startBlocking() {
       const targets = await getTargets();
       const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
+      // console.log('[all domains] hideStyle', hideStyle);
 
       hideTargets({ targets, hideStyle });
       startObserber({ targets, hideStyle });
     }
 
     async function stopBlocking() {
-      if (isObserveStarted) {
-        observer.disconnect();
-        isObserveStarted = false;
-      }
-      const observedTargets = document.querySelectorAll(
-        '.silent-blocking-extension'
-      );
-      observedTargets.forEach(el => {
-        el.classList.remove('silent-blocking-extension');
-        el.classList.remove('hidden');
-        el.removeAttribute('data-silent-blocking-extension');
-      });
+      observer && observer.disconnect();
+      setTimeout(() => {
+        const observedTargets = document.querySelectorAll(
+          '.silent-blocking-extension'
+        );
+        observedTargets.forEach(el => {
+          el.classList.remove('silent-blocking-extension');
+          el.classList.remove('hidden');
+          el.removeAttribute('data-silent-blocking-extension');
+        });
+      }, 500);
     }
 
     async function getTargets() {
@@ -98,14 +104,13 @@
     }
 
     function startObserber({ targets, hideStyle }) {
-      if (isObserveStarted) return;
-      isObserveStarted = true;
+      observer && observer.disconnect();
       const throttledHideTargets = throttle(
         () => hideTargets({ targets, hideStyle }),
-        200
+        500
       );
       observer = new MutationObserver(mutations => {
-        hideTargets({ targets, hideStyle });
+        throttledHideTargets();
         console.log('[all domains] hideStyle', hideStyle);
       });
 
