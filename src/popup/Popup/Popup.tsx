@@ -6,6 +6,7 @@ import {
   PlaySquareOutlined,
   RedditOutlined,
 } from '@ant-design/icons';
+import { AddNewTargetInput } from '../components/AddNewTargetInput/AddNewTargetInput';
 
 const IconMap = {
   '2': <RedditOutlined style={{ fontSize: '24px' }} />,
@@ -127,12 +128,13 @@ export const Popup = () => {
           <Typography.Text style={{ color: 'red', minHeight: '24px' }}>
             {isDomainInExcludedDomains ? 'is in excluded domains' : ' '}
           </Typography.Text>
-
+          <Divider />
+          <AddNewTargetInput />
           <Divider />
           <Button type="dashed" onClick={toggleDomainInExcludedDomains}>
             {isDomainInExcludedDomains
-              ? 'Remove from excluded'
-              : 'Add to excluded'}
+              ? 'Remove domain from excluded'
+              : 'Add domain to excluded'}
           </Button>
           <Divider />
         </Flex>

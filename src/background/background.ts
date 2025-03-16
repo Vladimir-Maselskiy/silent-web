@@ -57,6 +57,7 @@ async function addTarget(data: any) {
   });
   await chrome.storage.local.set({ ['targets']: targets });
   const responseData = await getTargets();
+  reInitBlokingOnCurrentPage();
   return { success: true, data: responseData };
 }
 

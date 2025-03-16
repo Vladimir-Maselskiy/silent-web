@@ -230,7 +230,11 @@ export const Options = () => {
                     pagination={{ pageSize: 7 }}
                   />
                   <Flex justify="end">
-                    <Button type="primary" onClick={showModal}>
+                    <Button
+                      type="primary"
+                      onClick={showModal}
+                      style={!targets.length && { marginTop: 16 }}
+                    >
                       Add Content
                     </Button>
                   </Flex>
