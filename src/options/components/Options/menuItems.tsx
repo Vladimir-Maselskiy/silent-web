@@ -10,6 +10,10 @@ export const webResourceItems = [
     label: 'Reddit',
   },
   {
+    key: '8',
+    label: 'DR.DK',
+  },
+  {
     key: '3',
     label: 'The New York Times',
     disabled: true,

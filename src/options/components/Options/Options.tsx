@@ -109,7 +109,7 @@ export const Options = () => {
 
         const isDisabled = targetWebResourseKey !== webResourceKey;
         return isDisabled ? (
-          <DeleteOutlined style={{ color: 'lightGrey' }} />
+          <DeleteOutlined key={id} style={{ color: 'lightGrey' }} />
         ) : (
           <Popover
             title="Delete"

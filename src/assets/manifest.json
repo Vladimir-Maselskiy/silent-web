@@ -26,6 +26,11 @@
       "all_frames": true
     },
     {
+      "matches": ["*://*.dr.dk/*"],
+      "js": ["dr.dk.js"],
+      "css": ["style.css"]
+    },
+    {
       "matches": ["http://*/*", "https://*/*"],
       "js": ["allDomains.js"],
       "css": ["style.css"],

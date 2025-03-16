@@ -19,16 +19,21 @@
     //   'reddit-recent-pages', //shadowRoot
     //   'shreddit-subreddit-header', //shadowRoot
     'img',
+    'strong',
   ];
 
   const containerSelectors = [
     'article',
-    'div[data-testid*="post-unit"]',
-    'li.highlight-list-item',
-    'li[rpl][role="presentation"]',
-    'details',
-    'faceplate-tracker[source="search"][action="view"][noun="trending"]',
-    'shreddit-post[post-title]',
+    'div[role="listitem"]',
+    'li.dre-slide-band-track__item',
+    'a.carousel-item',
+    'a.packshot.packshot-list__packshot',
+    'div.d1-drtv-episode',
+    'li[class^="LiveBar_Channel"]',
+    'li[class^="HeroBand_item"]',
+    'li[class^="ChannelSchedule_item"]',
+    'div[class^="Spot_spot"]',
+    'div.dre-teaser',
   ];
 
   const shadowDomSelectors = [
