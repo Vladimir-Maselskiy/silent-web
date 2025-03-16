@@ -3,7 +3,6 @@
 (async () => {
   if (!window.hasRun) {
     window.hasRun = true;
-    const webResourceKey = '1';
     const selectors = [
       'div',
       'span',
@@ -21,12 +20,7 @@
       'strong',
     ];
 
-    console.log('all domains] before start');
-    console.log(typeof throttle);
-
-    let isObserveStarted = false;
     let observer = null;
-    let isStarted = false;
     const isDefaultCanBeBlocking = await chrome.runtime.sendMessage({
       type: 'GET_IS_DEFAULT_CAN_BE_BLOCKING',
     });
@@ -76,8 +70,7 @@
 
     async function getTargets() {
       return await chrome.runtime.sendMessage({
-        type: 'GET_TARGETS_BY_KEY',
-        data: webResourceKey,
+        type: 'GET_TARGETS',
       });
     }
 

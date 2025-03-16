@@ -9,7 +9,7 @@ const defaultCheckedList = ['Ignore case', 'Search block'];
 type TProps = {
   isModalOpen: boolean;
   handleCancel: () => void;
-  addItem: ({
+  addTarget: ({
     target,
     checkedList,
   }: {
@@ -21,7 +21,7 @@ type TProps = {
 export const OptionsModal = ({
   isModalOpen,
   handleCancel,
-  addItem,
+  addTarget,
 }: TProps) => {
   const [target, setTarget] = useState('');
   const [checkedList, setCheckedList] = useState<string[]>(defaultCheckedList);
@@ -52,7 +52,7 @@ export const OptionsModal = ({
         <Button
           key="add"
           type="primary"
-          onClick={() => addItem({ target, checkedList })}
+          onClick={() => addTarget({ target, checkedList })}
         >
           Submit
         </Button>,

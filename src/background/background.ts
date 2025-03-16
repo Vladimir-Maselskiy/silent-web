@@ -4,10 +4,10 @@ let activeTabId = null;
 chrome.runtime.onMessage.addListener((message, sender, response) => {
   const { type, data } = message;
 
-  if (type === 'GET_TARGETS_BY_KEY') {
-    getTargetsByKey(data).then(resp => response(resp));
-  } else if (type === 'ADD_ITEM') {
-    addItem(data).then(resp => response(resp));
+  if (type === 'GET_TARGETS') {
+    getTargets().then(resp => response(resp));
+  } else if (type === 'ADD_TARGET') {
+    addTarget(data).then(resp => response(resp));
   } else if (type === 'DELETE_TARGET_ITEM') {
     deleteItem(data).then(resp => response(resp));
   } else if (type === 'SET_IS_BLOCKING') {
@@ -38,44 +38,37 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
   return true;
 });
 
-async function getTargetsByKey(key: string) {
-  const targets = (await getFromLocalstorage('targets')) || {};
-  if (key === '1') {
-    return targets[key] || [];
-  }
-
-  return [...(targets['1'] || []), ...(targets[key] || [])];
+async function getTargets() {
+  return (await getFromLocalstorage('targets')) || [];
 }
 
-async function addItem(data: any) {
-  const { ignoreCase, removeBlock, webResourceKey, target } = data;
+async function addTarget(data: any) {
+  const { ignoreCase, removeBlock, target } = data;
   const id = createItemId(data);
-  const targets = ((await getFromLocalstorage('targets')) as {}) || {};
-  targets[webResourceKey] = targets[webResourceKey] || [];
-  const webResourceData = targets[webResourceKey] as any[];
-  const isItemExist = webResourceData.find(item => item.id === id);
-  if (isItemExist) return { success: false };
-  webResourceData.push({
+  const targets = ((await getFromLocalstorage('targets')) as any[]) || [];
+  const isTargetExist = targets.find(target => target.id === id);
+  if (isTargetExist) return { success: false };
+  targets.push({
     id,
+    key: id,
     target,
     ignoreCase,
     removeBlock,
   });
   await chrome.storage.local.set({ ['targets']: targets });
-  const responseData = await getTargetsByKey(webResourceKey);
+  const responseData = await getTargets();
   return { success: true, data: responseData };
 }
-async function deleteItem(data: any) {
-  const { id, webResourceKey } = data;
 
-  const targets = ((await getFromLocalstorage('targets')) as {}) || {};
-  const webResourceData = targets[webResourceKey] as any[];
-  const currentItem = webResourceData.find(item => item.id === id);
-  if (!currentItem) return { success: false };
-  const newWebResourceData = webResourceData.filter(item => item.id !== id);
-  targets[webResourceKey] = newWebResourceData;
-  await chrome.storage.local.set({ ['targets']: targets });
-  const responseData = await getTargetsByKey(webResourceKey);
+async function deleteItem(data: any) {
+  const { id } = data;
+
+  const targets = ((await getFromLocalstorage('targets')) as any[]) || [];
+  const currentTarget = targets.find(target => target.id === id);
+  if (!currentTarget) return { success: false };
+  const newTargetsData = targets.filter(target => target.id !== id);
+  await chrome.storage.local.set({ ['targets']: newTargetsData });
+  const responseData = await getTargets();
   return { success: true, data: responseData };
 }
 
@@ -136,9 +129,7 @@ async function removeCurrentDomainFromExcludedDomains() {
 async function getActiveTab() {
   const activeTab = await chrome.tabs.query({
     active: true,
-    // lastFocusedWindow: true,
   });
-  console.log('activeTab', activeTab);
 
   return activeTab[0] || null;
 }
@@ -195,7 +186,6 @@ async function reInitBlokingOnCurrentPage() {
 
 async function setStyle(view: 'on' | 'off') {
   if (!view) return;
-  console.log('setStyle', view);
   await chrome.storage.local.set({ style: view });
   reInitBlokingOnCurrentPage();
 }
@@ -218,6 +208,6 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     if (!tab.url || tab.url.startsWith('chrome://')) return;
     reInitBlokingOnCurrentPage();
   } catch (error) {
-    console.error('Помилка при оновленні вкладки:', error);
+    console.error('Error on tabs.onActivated:', error);
   }
 });

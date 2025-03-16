@@ -3,7 +3,6 @@
 (async () => {
   let observer = null;
 
-  const webResourceKey = '8';
   const selectors = [
     'div',
     'span',
@@ -83,8 +82,7 @@
 
   async function getTargets() {
     return await chrome.runtime.sendMessage({
-      type: 'GET_TARGETS_BY_KEY',
-      data: webResourceKey,
+      type: 'GET_TARGETS',
     });
   }
 

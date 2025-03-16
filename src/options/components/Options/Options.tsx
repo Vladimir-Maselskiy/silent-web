@@ -23,7 +23,6 @@ import { SelectInfo } from 'rc-menu/lib/interface';
 import { OptionsModal } from '../Modal/Modal';
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 import { ExludedDomains } from '../ExludedDomains/ExludedDomains';
-import Card from 'antd/es/card/Card';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -76,7 +75,6 @@ export const Options = () => {
         const { target, id } = record;
         const targetWebResourseKey = parseInt(id).toString();
         const isAllDomainsTarget = targetWebResourseKey === '1';
-        console.log('isAllDomainsTarget', isAllDomainsTarget);
 
         return isAllDomainsTarget ? (
           <Badge dot={true} status="processing">
@@ -105,21 +103,13 @@ export const Options = () => {
       key: 'action',
       render: (_: any, record: any) => {
         const { id } = record;
-        const targetWebResourseKey = parseInt(id).toString();
 
-        const isDisabled = targetWebResourseKey !== webResourceKey;
-        return isDisabled ? (
-          <DeleteOutlined key={id} style={{ color: 'lightGrey' }} />
-        ) : (
+        return (
           <Popover
             title="Delete"
             trigger="click"
             content={
-              <Button
-                disabled={isDisabled}
-                type="primary"
-                onClick={() => deleteTarget(id)}
-              >
+              <Button type="primary" onClick={() => deleteTarget(id)}>
                 Ok
               </Button>
             }
@@ -131,7 +121,7 @@ export const Options = () => {
     },
   ];
 
-  const addItem = async ({
+  const addTarget = async ({
     target,
     checkedList,
   }: {
@@ -141,8 +131,8 @@ export const Options = () => {
     const ignoreCase = checkedList.includes('Ignore case');
     const removeBlock = checkedList.includes('Search block');
     const result = await chrome.runtime.sendMessage({
-      type: 'ADD_ITEM',
-      data: { target, ignoreCase, removeBlock, webResourceKey },
+      type: 'ADD_TARGET',
+      data: { target, ignoreCase, removeBlock },
     });
 
     if (result.success === true) {
@@ -155,7 +145,7 @@ export const Options = () => {
   const deleteTarget = async (targetId: string) => {
     const result = await chrome.runtime.sendMessage({
       type: 'DELETE_TARGET_ITEM',
-      data: { id: targetId, webResourceKey },
+      data: { id: targetId },
     });
     if (result.success === true) {
       setTargets(result.data);
@@ -163,7 +153,7 @@ export const Options = () => {
   };
 
   const onSelectOption = async (e: SelectInfo | { key: string }) => {
-    if (e.key === '7') {
+    if (e.key === '2') {
       setExludeDomainsSetting(true);
       setWebResourceKey(e.key);
       return;
@@ -171,13 +161,11 @@ export const Options = () => {
     setExludeDomainsSetting(false);
     setWebResourceKey(e.key);
     setIsLoading(true);
-    const getTargetsByKey = await chrome.runtime.sendMessage({
-      type: 'GET_TARGETS_BY_KEY',
-      data: e.key,
+    const targets = await chrome.runtime.sendMessage({
+      type: 'GET_TARGETS',
     });
 
-    console.log(getTargetsByKey);
-    setTargets(getTargetsByKey);
+    setTargets(targets);
     setIsLoading(false);
   };
 
@@ -268,7 +256,7 @@ export const Options = () => {
         </Content>
       </Layout>
       <OptionsModal
-        addItem={addItem}
+        addTarget={addTarget}
         isModalOpen={isModalOpen}
         handleCancel={handleCancel}
       />
