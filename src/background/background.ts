@@ -39,15 +39,20 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
 });
 
 async function getTargetsByKey(key: string) {
-  const result = await getFromLocalstorage(key);
-  return result || [];
+  const targets = (await getFromLocalstorage('targets')) || {};
+  if (key === '1') {
+    return targets[key] || [];
+  }
+
+  return [...(targets['1'] || []), ...(targets[key] || [])];
 }
 
 async function addItem(data: any) {
   const { ignoreCase, removeBlock, webResourceKey, target } = data;
   const id = createItemId(data);
-  const webResourceData =
-    ((await getFromLocalstorage(webResourceKey)) as any[]) || [];
+  const targets = ((await getFromLocalstorage('targets')) as {}) || {};
+  targets[webResourceKey] = targets[webResourceKey] || [];
+  const webResourceData = targets[webResourceKey] as any[];
   const isItemExist = webResourceData.find(item => item.id === id);
   if (isItemExist) return { success: false };
   webResourceData.push({
@@ -56,19 +61,22 @@ async function addItem(data: any) {
     ignoreCase,
     removeBlock,
   });
-  await chrome.storage.local.set({ [webResourceKey]: webResourceData });
-  return { success: true, data: webResourceData };
+  await chrome.storage.local.set({ ['targets']: targets });
+  const responseData = await getTargetsByKey(webResourceKey);
+  return { success: true, data: responseData };
 }
 async function deleteItem(data: any) {
   const { id, webResourceKey } = data;
 
-  const webResourceData =
-    ((await getFromLocalstorage(webResourceKey)) as any[]) || [];
+  const targets = ((await getFromLocalstorage('targets')) as {}) || {};
+  const webResourceData = targets[webResourceKey] as any[];
   const currentItem = webResourceData.find(item => item.id === id);
   if (!currentItem) return { success: false };
   const newWebResourceData = webResourceData.filter(item => item.id !== id);
-  await chrome.storage.local.set({ [webResourceKey]: newWebResourceData });
-  return { success: true, data: newWebResourceData };
+  targets[webResourceKey] = newWebResourceData;
+  await chrome.storage.local.set({ ['targets']: targets });
+  const responseData = await getTargetsByKey(webResourceKey);
+  return { success: true, data: responseData };
 }
 
 async function setIsBlocking(data: { isBlocking: boolean }) {

@@ -6,6 +6,7 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 import {
+  Badge,
   Breadcrumb,
   Button,
   Flex,
@@ -22,6 +23,7 @@ import { SelectInfo } from 'rc-menu/lib/interface';
 import { OptionsModal } from '../Modal/Modal';
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 import { ExludedDomains } from '../ExludedDomains/ExludedDomains';
+import Card from 'antd/es/card/Card';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -70,6 +72,20 @@ export const Options = () => {
       title: 'Word/phrase',
       dataIndex: 'target',
       key: 'target',
+      render: (_: any, record: any) => {
+        const { target, id } = record;
+        const targetWebResourseKey = parseInt(id).toString();
+        const isAllDomainsTarget = targetWebResourseKey === '1';
+        console.log('isAllDomainsTarget', isAllDomainsTarget);
+
+        return isAllDomainsTarget ? (
+          <Badge dot={true} status="processing">
+            <Typography.Text>{target}</Typography.Text>
+          </Badge>
+        ) : (
+          <Typography.Text>{target}</Typography.Text>
+        );
+      },
     },
     {
       title: 'Ignore case',
@@ -87,19 +103,31 @@ export const Options = () => {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
-      render: (_: any, record: any) => (
-        <Popover
-          title="Delete"
-          trigger="click"
-          content={
-            <Button type="primary" onClick={() => deleteTarget(record.id)}>
-              Ok
-            </Button>
-          }
-        >
-          <DeleteOutlined />
-        </Popover>
-      ),
+      render: (_: any, record: any) => {
+        const { id } = record;
+        const targetWebResourseKey = parseInt(id).toString();
+
+        const isDisabled = targetWebResourseKey !== webResourceKey;
+        return isDisabled ? (
+          <DeleteOutlined style={{ color: 'lightGrey' }} />
+        ) : (
+          <Popover
+            title="Delete"
+            trigger="click"
+            content={
+              <Button
+                disabled={isDisabled}
+                type="primary"
+                onClick={() => deleteTarget(id)}
+              >
+                Ok
+              </Button>
+            }
+          >
+            <DeleteOutlined />
+          </Popover>
+        );
+      },
     },
   ];
 
@@ -151,17 +179,6 @@ export const Options = () => {
     console.log(getTargetsByKey);
     setTargets(getTargetsByKey);
     setIsLoading(false);
-  };
-
-  const onCheckboxChangeTarget = (target: {
-    field: 'removeBlock' | 'ignoreCase';
-    id: string;
-  }) => {
-    setTargets(prevTargets =>
-      prevTargets.map(t =>
-        t.id === target.id ? { ...t, [target.field]: !t[target.field] } : t
-      )
-    );
   };
 
   return (

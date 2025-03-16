@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "name": "Silent Web",
   "description": "Tools for remove web content",
   "icons": {
