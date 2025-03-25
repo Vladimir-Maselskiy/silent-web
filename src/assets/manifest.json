@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.5",
+  "version": "1.0.8.1",
   "name": "Silent Web",
   "description": "Tools for remove web content",
   "icons": {
@@ -28,6 +28,21 @@
     {
       "matches": ["*://*.dr.dk/*"],
       "js": ["dr.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.tv2.dk/*"],
+      "js": ["dr.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://ekstrabladet.dk/*"],
+      "js": ["ekstrabladet.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://politiken.dk/*"],
+      "js": ["politiken.dk.js"],
       "css": ["style.css"]
     },
     {

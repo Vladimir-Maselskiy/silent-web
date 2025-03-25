@@ -21,19 +21,7 @@
     'strong',
   ];
 
-  const containerSelectors = [
-    'article',
-    'div[role="listitem"]',
-    'li.dre-slide-band-track__item',
-    'a.carousel-item',
-    'a.packshot.packshot-list__packshot',
-    'div.d1-drtv-episode',
-    'li[class^="LiveBar_Channel"]',
-    'li[class^="HeroBand_item"]',
-    'li[class^="ChannelSchedule_item"]',
-    'div[class^="Spot_spot"]',
-    'div.dre-teaser',
-  ];
+  const containerSelectors = ['article', 'a.list-item'];
 
   const shadowDomSelectors = [
     {

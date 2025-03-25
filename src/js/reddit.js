@@ -134,7 +134,7 @@
   }
 
   function getTargetContent({ el, target }) {
-    if (el.children.length) return null;
+    if (el.children.length && !hasTextContent(el)) return null;
     const { target: targetValue, ignoreCase, removeBlock } = target;
     const elementText = el.textContent;
     const isMatch = ignoreCase
@@ -170,6 +170,12 @@
     }
     return null;
   }
+
+    function hasTextContent(element) {
+      return Array.from(element.childNodes).some(
+        node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== ''
+      );
+    }
 
   startScript();
 
