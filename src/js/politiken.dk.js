@@ -1,25 +1,27 @@
 'use strict';
 
 (async () => {
-  let observer = null;
+  const hideTargetsModuleImport = import(
+    chrome.runtime.getURL('utils/hideTargets.js')
+  );
 
-  const selectors = [
-    'div',
-    'span',
-    'p',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'li',
-    'a',
-    //   'reddit-recent-pages', //shadowRoot
-    //   'shreddit-subreddit-header', //shadowRoot
-    'img',
-    'strong',
-  ];
+  const selectorsModuleImport = import(
+    chrome.runtime.getURL('utils/getDefaultSelectors.js')
+  );
+
+  const getShadowDomTargetContentModuleImport = import(
+    chrome.runtime.getURL('utils/getShadowDomTargetContent.js')
+  );
+  const [hideTargetsModule, defaultSelectors, getShadowDomTargetContentModule] =
+    await Promise.all([
+      hideTargetsModuleImport,
+      selectorsModuleImport,
+      getShadowDomTargetContentModuleImport,
+    ]);
+
+  const selectors = defaultSelectors.getDefaultSelectors();
+  console.log('[dr.dk] hideTargetsModule', hideTargetsModule);
+  let observer = null;
 
   const containerSelectors = ['article', 'a.list-item'];
 
@@ -49,7 +51,12 @@
     const targets = await getTargets();
     const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
 
-    hideTargets({ targets, hideStyle });
+    hideTargetsModule.hideTargets({
+      targets,
+      hideStyle,
+      selectors,
+      containerSelectors,
+    });
     hideShadowDaomTargets({ targets, hideStyle });
 
     startObserber({ targets, hideStyle });
@@ -74,24 +81,6 @@
     });
   }
 
-  function hideTargets({ targets, hideStyle }) {
-    const targetElement = document.body;
-    // const targetElement = element ? element : document.body;
-    targets.forEach(target => {
-      const elements = targetElement.querySelectorAll(selectors.join(','));
-      elements.forEach(el => {
-        const targetElement = getTargetContent({ el, target });
-
-        if (targetElement) {
-          targetElement.classList.add('silent-blocking-extension');
-          hideStyle === 'off'
-            ? targetElement.classList.add('hidden')
-            : targetElement.classList.remove('hidden');
-          targetElement.setAttribute('data-silent-blocking-extension', 'true');
-        }
-      });
-    });
-  }
   function hideShadowDaomTargets({ targets, hideStyle }) {
     const targetElement = document.body;
     // const targetElement = element ? element : document.body;
@@ -100,7 +89,12 @@
         shadowDomSelectors.map(({ selector }) => selector).join(',')
       );
       elements.forEach(el => {
-        const targetElement = getShadowDomTargetContent({ el, target });
+        const targetElement =
+          getShadowDomTargetContentModule.getShadowDomTargetContent({
+            el,
+            target,
+            shadowDomSelectors,
+          });
 
         if (targetElement) {
           targetElement.classList.add('silent-blocking-extension');
@@ -116,7 +110,12 @@
   function startObserber({ targets, hideStyle }) {
     observer && observer.disconnect();
     observer = new MutationObserver(mutations => {
-      hideTargets({ targets, hideStyle });
+      hideTargetsModule.hideTargets({
+        targets,
+        hideStyle,
+        selectors,
+        containerSelectors,
+      });
     });
 
     observer.observe(document.body, {
@@ -124,50 +123,6 @@
       subtree: true,
       characterData: true,
     });
-  }
-
-  function getTargetContent({ el, target }) {
-    if (el.children.length && !hasTextContent(el)) return null;
-    const { target: targetValue, ignoreCase, removeBlock } = target;
-    const elementText = el.textContent;
-    const isMatch = ignoreCase
-      ? elementText.toLowerCase().includes(targetValue.toLowerCase())
-      : elementText.includes(targetValue);
-    if (!isMatch) return null;
-
-    const targetContent = removeBlock
-      ? el.closest(containerSelectors.join(','))
-      : el;
-    console.log('[reddit] targetValue', targetValue);
-    if (targetContent) {
-      return targetContent;
-    }
-    return el;
-  }
-  function getShadowDomTargetContent({ el, target }) {
-    if (!el || !el.shadowRoot) return null;
-    const { target: targetValue, ignoreCase } = target;
-    const elementText = el.textContent;
-    const isMatch = ignoreCase
-      ? elementText.toLowerCase().includes(targetValue.toLowerCase())
-      : elementText.includes(targetValue);
-    if (isMatch) {
-      const tagName = el.tagName.toLowerCase();
-      const currentSelector = shadowDomSelectors.find(
-        shadowDomSelector => shadowDomSelector.selector === tagName
-      );
-      if (!currentSelector) return null;
-      const targetEl = el.closest(currentSelector.containerSelector);
-
-      return targetEl;
-    }
-    return null;
-  }
-
-  function hasTextContent(element) {
-    return Array.from(element.childNodes).some(
-      node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== ''
-    );
   }
 
   startScript();
