@@ -1,6 +1,9 @@
 'use strict';
 
 (async () => {
+  const containerSelectors = ['article', 'a.list-item', 'div[data-link-url]'];
+
+  const shadowDomSelectors = [];
   const hideTargetsModuleImport = import(
     chrome.runtime.getURL('utils/hideTargets.js')
   );
@@ -12,38 +15,34 @@
   const getShadowDomTargetContentModuleImport = import(
     chrome.runtime.getURL('utils/getShadowDomTargetContent.js')
   );
-  const [hideTargetsModule, defaultSelectors, getShadowDomTargetContentModule] =
-    await Promise.all([
-      hideTargetsModuleImport,
-      selectorsModuleImport,
-      getShadowDomTargetContentModuleImport,
-    ]);
+
+  const hideShadowDomTargetsModuleImport = import(
+    chrome.runtime.getURL('utils/hideShadowDomTargets.js')
+  );
+  const [
+    hideTargetsModule,
+    defaultSelectors,
+    getShadowDomTargetContentModule,
+    hideShadowDomTargetsModule,
+  ] = await Promise.all([
+    hideTargetsModuleImport,
+    selectorsModuleImport,
+    getShadowDomTargetContentModuleImport,
+    hideShadowDomTargetsModuleImport,
+  ]);
 
   const selectors = defaultSelectors.getDefaultSelectors();
-  console.log('[dr.dk] hideTargetsModule', hideTargetsModule);
   let observer = null;
-
-  const containerSelectors = ['article', 'a.list-item'];
-
-  const shadowDomSelectors = [
-    {
-      selector: 'faceplate-screen-reader-content',
-      containerSelector: 'div[data-testid="search-post-unit"]',
-    },
-  ];
 
   async function startScript() {
     let isBlocking = await chrome.runtime.sendMessage({
       type: 'GET_IS_BLOCKING',
     });
 
-    console.log('[dr.dk] isBlocking', isBlocking);
     if (isBlocking) {
       startBlocking();
-      console.log('[dr.dk] startBlocking');
     } else {
       stopBlocking();
-      console.log('[dr.dk] stopBlocking');
     }
   }
 
@@ -57,10 +56,14 @@
       selectors,
       containerSelectors,
     });
-    hideShadowDaomTargets({ targets, hideStyle });
+    hideShadowDomTargetsModule.hideShadowDomTargets({
+      targets,
+      hideStyle,
+      shadowDomSelectors,
+      getShadowDomTargetContentModule,
+    });
 
     startObserber({ targets, hideStyle });
-    console.log('[dr.dk] targets', targets);
   }
   async function stopBlocking() {
     observer && observer.disconnect();
@@ -78,32 +81,6 @@
   async function getTargets() {
     return await chrome.runtime.sendMessage({
       type: 'GET_TARGETS',
-    });
-  }
-
-  function hideShadowDaomTargets({ targets, hideStyle }) {
-    const targetElement = document.body;
-    // const targetElement = element ? element : document.body;
-    targets.forEach(target => {
-      const elements = targetElement.querySelectorAll(
-        shadowDomSelectors.map(({ selector }) => selector).join(',')
-      );
-      elements.forEach(el => {
-        const targetElement =
-          getShadowDomTargetContentModule.getShadowDomTargetContent({
-            el,
-            target,
-            shadowDomSelectors,
-          });
-
-        if (targetElement) {
-          targetElement.classList.add('silent-blocking-extension');
-          hideStyle === 'off'
-            ? targetElement.classList.add('hidden')
-            : targetElement.classList.remove('hidden');
-          targetElement.setAttribute('data-silent-blocking-extension', 'true');
-        }
-      });
     });
   }
 

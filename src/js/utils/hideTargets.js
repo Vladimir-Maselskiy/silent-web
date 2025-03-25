@@ -10,7 +10,6 @@ function getTargetContent({ el, target, containerSelectors }) {
   const targetContent = removeBlock
     ? el.closest(containerSelectors.join(','))
     : el;
-  console.log('[reddit] targetValue', targetValue);
   if (targetContent) {
     return targetContent;
   }
