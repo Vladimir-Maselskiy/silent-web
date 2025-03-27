@@ -46,6 +46,26 @@
       "css": ["style.css"]
     },
     {
+      "matches": ["*://*.bt.dk/*"],
+      "js": ["bt.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.jp.dk/*", "*://*.jyllands-posten.dk/*"],
+      "js": ["jp.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.berlingske.dk/*"],
+      "js": ["berlingske.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.msn.dk/*", "*://*.msn.com/*"],
+      "js": ["msn.dk.js"],
+      "css": ["style.css"]
+    },
+    {
       "matches": ["http://*/*", "https://*/*"],
       "js": ["allDomains.js"],
       "css": ["style.css"],

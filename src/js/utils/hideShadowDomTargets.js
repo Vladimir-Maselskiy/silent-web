@@ -4,6 +4,7 @@ export const hideShadowDomTargets = ({
   shadowDomSelectors,
   getShadowDomTargetContentModule,
 }) => {
+  if (!shadowDomSelectors.length) return;
   const targetElement = document.body;
   targets.forEach(target => {
     const elements = targetElement.querySelectorAll(

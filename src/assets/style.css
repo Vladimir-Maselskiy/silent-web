@@ -3,21 +3,9 @@
   outline: 2px solid transparent;
   border: 4px solid skyblue !important;
   filter: blur(5px) !important;
-  /* animation: blinkOutline 1s infinite; */
 }
 
 .hidden {
   display: none !important;
 }
 
-@keyframes blinkOutline {
-  0% {
-    outline-color: transparent;
-  }
-  50% {
-    outline-color: red;
-  }
-  100% {
-    outline-color: transparent;
-  }
-}
