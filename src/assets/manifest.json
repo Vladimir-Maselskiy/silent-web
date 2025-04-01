@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.8.1",
+  "version": "1.0.9",
   "name": "Silent Web",
   "description": "Tools for remove web content",
   "icons": {
@@ -63,6 +63,36 @@
     {
       "matches": ["*://*.msn.dk/*", "*://*.msn.com/*"],
       "js": ["msn.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.finans.dk/*"],
+      "js": ["finans.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.dagens.dk/*", "*://*.dagens.com/*"],
+      "js": ["dagens.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.seoghoer.dk/*"],
+      "js": ["seoghoer.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.nytimes.com/*"],
+      "js": ["nytimes.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.dinavis.dk/*", "*://*.lokalavisen.dk/*"],
+      "js": ["dinavis.dk.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.people.com/*"],
+      "js": ["people.com.js"],
       "css": ["style.css"]
     },
     {

@@ -4,14 +4,25 @@
   const containerSelectors = ['article'];
 
   const shadowDomSelectors = [
+    'above-river-block',
     'entry-point',
-    'waterfall-view-feed',
+    'desktop-feed-views',
+    'gallery-slideshow',
     'cs-super-container',
     'cs-responsive-feed-layout',
     'cs-infopane-card',
     'cs-card',
     'cs-responsive-infopane',
+    'cs-feed-layout',
+    'cs-personalized-feed',
     'cs-responsive-card',
+    'cs-native-ad-card',
+    'cs-content-card',
+    'cp-article',
+    'slide-metadata',
+    'views-native-ad',
+    'views-header-wc',
+    'waterfall-view-feed',
   ];
   const hideTargetsModuleImport = import(
     chrome.runtime.getURL('utils/hideTargets.js')

@@ -147,7 +147,9 @@
         : elementText.includes(targetValue);
       if (!isMatch) return null;
 
-      const targetContent = removeBlock ? targetEl.closest('div') : targetEl;
+      const targetContent = removeBlock
+        ? targetEl.closest(['article', 'div'].join(','))
+        : targetEl;
       if (targetContent) {
         return targetContent;
       }
