@@ -6,6 +6,7 @@ export const hideShadowDomTargets = ({
 }) => {
   if (!shadowDomSelectors.length) return;
   const targetElement = document.body;
+  if (!targetElement) return;
   targets.forEach(target => {
     const elements = targetElement.querySelectorAll(
       shadowDomSelectors.map(({ selector }) => selector).join(',')

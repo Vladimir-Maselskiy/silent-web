@@ -2,15 +2,20 @@
 
 (async () => {
   const containerSelectors = [
-    'div[id*="news-feed"].news-feed',
-    'a[id*="mntl-card-list-items"]',
-    'div[id*="star-tracks__inner-wrapper--body"]',
-    'a[id*="primary-block__topStory"]',
-    'div[id*="recirc-lead__card-list-items"]',
-    'div.ob-dynamic-rec-container[data-pos]',
-    'figure[id*="figure-article"]',
-    'figure[id*="mntl-sc-block"]',
-    'li[id*="mntl-carousel__item"]',
+    'div[data-testid="dundee-card"]',
+    'div[data-testid="dundee-article"]',
+    'div[data-testid="edinburgh-card"]',
+    'div[data-testid="southend-card"]',
+    'div[data-testid="edinburgh-video"]',
+    'div[data-testid="chester-article"]',
+    'div[data-testid="westminster"]',
+    'div[data-testid="manchester-card"]',
+    'div[data-testid="windsor-article"]',
+    'div[data-testid="ipswich-card"]',
+    'div[data-testid="windsor-card"]',
+    'div[data-testid="aberdeen-card"]',
+    'div[data-testid="liverpool-card"]',
+    'div[data-testid="glastonbury-card"]',
   ];
 
   const shadowDomSelectors = [];
@@ -55,18 +60,6 @@
       stopBlocking();
     }
   }
-  const throttledHideTargets = throttle(hideTargetsModule.hideTargets, 1000);
-
-  function throttle(func, delay) {
-    let lastCall = 0;
-    return function (...args) {
-      const now = Date.now();
-      if (now - lastCall >= delay) {
-        lastCall = now;
-        func(...args);
-      }
-    };
-  }
 
   async function startBlocking() {
     const targets = await getTargets();
@@ -78,16 +71,15 @@
       selectors,
       containerSelectors,
     });
-    // hideShadowDomTargetsModule.hideShadowDomTargets({
-    //   targets,
-    //   hideStyle,
-    //   shadowDomSelectors,
-    //   getShadowDomTargetContentModule,
-    // });
+    hideShadowDomTargetsModule.hideShadowDomTargets({
+      targets,
+      hideStyle,
+      shadowDomSelectors,
+      getShadowDomTargetContentModule,
+    });
 
     startObserber({ targets, hideStyle });
   }
-
   async function stopBlocking() {
     observer && observer.disconnect();
 
@@ -110,7 +102,7 @@
   function startObserber({ targets, hideStyle }) {
     observer && observer.disconnect();
     observer = new MutationObserver(mutations => {
-      throttledHideTargets({
+      hideTargetsModule.hideTargets({
         targets,
         hideStyle,
         selectors,

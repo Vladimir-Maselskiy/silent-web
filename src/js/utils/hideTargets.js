@@ -30,6 +30,7 @@ export const hideTargets = ({
 }) => {
   if (!selectors.length) return;
   const targetElement = document.body;
+  if (!targetElement) return;
   const elementRefs = targetElement.querySelectorAll(selectors.join(','));
   if (!elementRefs.length) return;
   elementRefs.forEach(elementRef => {
@@ -48,23 +49,4 @@ export const hideTargets = ({
       }
     });
   });
-
-  // targets.forEach(target => {
-  //   const elements = targetElement.querySelectorAll(selectors.join(','));
-  //   elements.forEach(el => {
-  //     const targetElement = getTargetContent({
-  //       el,
-  //       target,
-  //       containerSelectors,
-  //     });
-
-  //     if (targetElement) {
-  //       targetElement.classList.add('silent-blocking-extension');
-  //       hideStyle === 'off'
-  //         ? targetElement.classList.add('hidden')
-  //         : targetElement.classList.remove('hidden');
-  //       targetElement.setAttribute('data-silent-blocking-extension', 'true');
-  //     }
-  //   });
-  // });
 };

@@ -93,6 +93,42 @@
     {
       "matches": ["*://*.people.com/*"],
       "js": ["people.com.js"],
+      "css": ["style.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.bbc.co.uk/*", "*://*.bbc.com/*"],
+      "js": ["bbc.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.foxnews.com/*"],
+      "js": ["foxnews.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.cnn.com/", "*://*.edition.cnn.com/*"],
+      "js": ["cnn.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://news.google.com/*"],
+      "js": ["news.google.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.yahoo.com/*"],
+      "js": ["yahoo.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.theguardian.com/*"],
+      "js": ["theguardian.com.js"],
+      "css": ["style.css"]
+    },
+    {
+      "matches": ["*://*.dailymail.co.uk/*"],
+      "js": ["dailymail.co.uk.js"],
       "css": ["style.css"]
     },
     {
