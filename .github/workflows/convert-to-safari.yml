@@ -1,0 +1,41 @@
+name: Convert Chrome Extension to Safari
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          brew install --cask xcode
+          sudo gem install safari-web-extension-converter
+
+      - name: Convert Chrome extension to Safari
+        run: |
+          # Перевіряємо чи існує папка dist, і розпаковуємо розширення
+          if [ -d "dist" ]; then
+            safari-web-extension-converter dist --output safari_extension
+          else
+            echo "The 'dist' directory is missing!"
+            exit 1
+          fi
+
+      - name: Archive Safari extension
+        run: |
+          cd safari_extension
+          zip -r safari_extension.zip .
+          mv safari_extension.zip $GITHUB_ENV
+
+      - name: Upload Safari extension as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: safari-extension
+          path: ${{env.safari_extension_zip}}
