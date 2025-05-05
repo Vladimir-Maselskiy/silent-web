@@ -1,4 +1,4 @@
-name: Test Artifact Upload 123
+name: Convert Chrome Extension to Safari
 
 on:
   push:
@@ -6,27 +6,35 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create test file
+      - name: Install dependencies
         run: |
-          echo "This is a test file" > test.txt
-          mkdir -p output
-          mv test.txt output/
+          brew install --cask xcode
+          sudo gem install safari-web-extension-converter
 
-      - name: Archive test file
+      - name: Convert Chrome extension to Safari
         run: |
-          cd output
-          zip test.zip test.txt
-          cd ..
+          if [ -d "dist" ]; then
+            safari-web-extension-converter dist --output safari_extension
+          else
+            echo "The 'dist' directory is missing!"
+            exit 1
+          fi
 
-      - name: Upload artifact
+      - name: Archive Safari extension
+        run: |
+          cd safari_extension
+          zip -r safari_extension.zip .
+          echo "safari_extension_zip=safari_extension/safari_extension.zip" >> $GITHUB_ENV
+
+      - name: Upload Safari extension as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: test-artifact
-          path: output/test.zip
+          name: safari-extension
+          path: ${{ env.safari_extension_zip }}
