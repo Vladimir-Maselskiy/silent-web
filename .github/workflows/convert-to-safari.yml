@@ -15,7 +15,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install --cask xcode
           sudo gem install safari-web-extension-converter
 
       - name: Convert Chrome extension to Safari
