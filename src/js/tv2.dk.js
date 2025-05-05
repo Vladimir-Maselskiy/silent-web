@@ -1,7 +1,7 @@
 'use strict';
 
 (async () => {
-  const containerSelectors = ['article'];
+  const containerSelectors = ['article', 'li[class*="__nav__item"]'];
 
   const shadowDomSelectors = [];
   const hideTargetsModuleImport = import(

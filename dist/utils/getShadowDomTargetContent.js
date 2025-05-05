@@ -1,0 +1,1 @@
+export const getShadowDomTargetContent=({el:e,target:t,shadowDomSelectors:o})=>{if(!e||!e.shadowRoot)return null;const{target:n,ignoreCase:r}=t,s=e.textContent;if(r?s.toLowerCase().includes(n.toLowerCase()):s.includes(n)){const t=e.tagName.toLowerCase(),n=o.find((e=>e.selector===t));if(!n)return null;return n.containerSelector?e.closest(n.containerSelector):e}return null};
