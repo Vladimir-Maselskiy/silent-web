@@ -13,14 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo gem install safari-web-extension-converter
-
       - name: Convert Chrome extension to Safari
         run: |
+          echo "Checking dist directory..."
           if [ -d "dist" ]; then
-            safari-web-extension-converter dist --output safari_extension
+            echo "Running converter..."
+            safari-web-extension-converter dist \
+              --output safari_extension \
+              --no-open \
+              --force
           else
             echo "The 'dist' directory is missing!"
             exit 1
@@ -30,7 +31,7 @@ jobs:
         run: |
           cd safari_extension
           zip -r safari_extension.zip .
-          echo "safari_extension_zip=safari_extension/safari_extension.zip" >> $GITHUB_ENV
+          echo "safari_extension_zip=$(pwd)/safari_extension.zip" >> $GITHUB_ENV
 
       - name: Upload Safari extension as artifact
         uses: actions/upload-artifact@v4
