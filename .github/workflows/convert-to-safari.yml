@@ -15,14 +15,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "Installing dependencies..."
           brew install --cask xcode
           sudo gem install safari-web-extension-converter
+          echo "Dependencies installed."
 
       - name: Convert Chrome extension to Safari
         run: |
-          # Перевіряємо чи існує папка dist, і розпаковуємо розширення
+          echo "Checking if 'dist' directory exists..."
           if [ -d "dist" ]; then
+            echo "Found 'dist' directory. Converting extension to Safari format..."
             safari-web-extension-converter dist --output safari_extension
+            echo "Conversion complete."
           else
             echo "The 'dist' directory is missing!"
             exit 1
@@ -30,9 +34,29 @@ jobs:
 
       - name: Archive Safari extension
         run: |
-          cd safari_extension
-          zip -r safari_extension.zip .
-          echo "safari_extension_zip=safari_extension/safari_extension.zip" >> $GITHUB_ENV
+          echo "Checking if Safari extension was created..."
+          if [ -d "safari_extension" ]; then
+            cd safari_extension
+            echo "Zipping Safari extension..."
+            zip -r safari_extension.zip .
+            echo "Safari extension zipped."
+            echo "safari_extension_zip=safari_extension/safari_extension.zip" >> $GITHUB_ENV
+            echo "Safari extension path saved to environment variable."
+          else
+            echo "Safari extension directory does not exist!"
+            exit 1
+          fi
+
+      - name: Upload Safari extension as artifact
+        run: |
+          echo "Uploading Safari extension as artifact..."
+          echo "Using path: ${{ env.safari_extension_zip }}"
+          if [ -f "${{ env.safari_extension_zip }}" ]; then
+            echo "File exists. Proceeding with upload."
+          else
+            echo "File does not exist. Cannot upload artifact."
+            exit 1
+          fi
 
       - name: Upload Safari extension as artifact
         uses: actions/upload-artifact@v3
