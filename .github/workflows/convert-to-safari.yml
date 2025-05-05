@@ -32,10 +32,10 @@ jobs:
         run: |
           cd safari_extension
           zip -r safari_extension.zip .
-          mv safari_extension.zip $GITHUB_ENV
+          echo "safari_extension_zip=safari_extension/safari_extension.zip" >> $GITHUB_ENV
 
       - name: Upload Safari extension as artifact
         uses: actions/upload-artifact@v3
         with:
           name: safari-extension
-          path: ${{env.safari_extension_zip}}
+          path: ${{ env.safari_extension_zip }}
