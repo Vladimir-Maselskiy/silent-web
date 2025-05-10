@@ -4,74 +4,79 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = {
-  entry: {
-    popup: path.resolve('src/popup/index.tsx'),
-    options: path.resolve('src/options/index.tsx'),
-    background: path.resolve('src/background/background.ts'),
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-    ],
-  },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  },
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
-  },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new CopyWebpackPlugin({
-      patterns: [
+module.exports = env => {
+  return {
+    entry: {
+      popup: path.resolve('src/popup/index.tsx'),
+      options: path.resolve('src/options/index.tsx'),
+      background: path.resolve('src/background/background.ts'),
+    },
+    module: {
+      rules: [
         {
-          from: path.resolve('src/assets'),
-          to: path.resolve('dist'),
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
         },
         {
-          from: path.resolve('src/js'),
-          to: path.resolve('dist'),
+          test: /\.scss$/,
+          use: ['style-loader', 'css-loader', 'sass-loader'],
         },
       ],
-    }),
-    ...getHtlmPlugins(['popup', 'options']),
-  ],
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
     },
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-        terserOptions: {
-          compress: {
-            drop_console: true, // Видаляє console.log
-            dead_code: true, // Видаляє невикористаний код
-            unused: true, // Видаляє змінні та функції, що не використовуються
-            collapse_vars: true, // Об'єднує змінні, коли можливо
-            reduce_vars: true, // Оптимізує повторно використані змінні
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+      filename: '[name].js',
+      path: path.resolve(__dirname, 'dist'),
+    },
+    plugins: [
+      new CleanWebpackPlugin(),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: path.resolve('src/assets'),
+            to: path.resolve('dist'),
           },
-          format: {
-            comments: false, // Видаляє коментарі
+          {
+            from: path.resolve('src/js'),
+            to: path.resolve('dist'),
           },
-          mangle: {
-            toplevel: true, // Обфускація глобальних змінних
-          },
-        },
+        ],
       }),
+      ...getHtlmPlugins(['popup', 'options']),
     ],
-  },
+    optimization:
+      env === 'production'
+        ? {
+            splitChunks: {
+              chunks: 'all',
+            },
+            minimize: true,
+            minimizer: [
+              new TerserPlugin({
+                extractComments: false,
+                terserOptions: {
+                  compress: {
+                    drop_console: true, // Видаляє console.log
+                    dead_code: true, // Видаляє невикористаний код
+                    unused: true, // Видаляє змінні та функції, що не використовуються
+                    collapse_vars: true, // Об'єднує змінні, коли можливо
+                    reduce_vars: true, // Оптимізує повторно використані змінні
+                  },
+                  format: {
+                    comments: false, // Видаляє коментарі
+                  },
+                  mangle: {
+                    toplevel: true, // Обфускація глобальних змінних
+                  },
+                },
+              }),
+            ],
+          }
+        : {},
+  };
 };
 
 function getHtlmPlugins(chunks) {

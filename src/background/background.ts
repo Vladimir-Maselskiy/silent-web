@@ -144,7 +144,10 @@ async function getIsDefaultCanBeBlocking() {
   const url = new URL(activeTab[0].url);
   if (!url?.hostname) return;
   const domain = url.hostname;
-  return !specialDomains.includes(domain);
+  const isSpecialDomain = specialDomains.some(specialDomain =>
+    domain.includes(specialDomain)
+  );
+  return !isSpecialDomain;
 }
 
 async function getExcludedDomains() {

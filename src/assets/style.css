@@ -1,5 +1,11 @@
+root {
+  --accent-color: rgb(85, 111, 123);
+  --light-accent-color: hsl(202, 36%, 73%);
+}
+
 .silent-blocking-extension {
   background-color: rgb(227, 243, 250) !important;
+  /* background-color: var(--accent-color) !important; */
   outline: 2px solid transparent;
   border: 4px solid skyblue !important;
   filter: blur(5px) !important;
@@ -8,4 +14,3 @@
 .hidden {
   display: none !important;
 }
-

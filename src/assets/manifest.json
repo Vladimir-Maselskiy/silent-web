@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "version": "1.0.11",
-  "name": "Silent Web",
+  "version": "1.0.13",
+  "name": "Sluk",
   "description": "Tools for remove web content",
   "icons": {
     "16": "logo.png",
@@ -31,13 +31,7 @@
       "css": ["style.css"]
     },
     {
-      "matches": [
-        "*://*.tv2.dk/*",
-        "*://*.nyheder.tv2.dk/*",
-        "*://*.sport.tv2.dk/*",
-        "*://*.vejr.tv2.dk/*",
-        "*://*.tv.tv2.dk/*"
-      ],
+      "matches": ["*://*.tv2.dk/*"],
       "js": ["tv2.dk.js"],
       "css": ["style.css"]
     },
@@ -113,7 +107,7 @@
       "css": ["style.css"]
     },
     {
-      "matches": ["*://*.cnn.com/", "*://*.edition.cnn.com/*"],
+      "matches": ["*://*.cnn.com/"],
       "js": ["cnn.com.js"],
       "css": ["style.css"]
     },
