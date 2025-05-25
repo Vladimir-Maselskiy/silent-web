@@ -15,6 +15,7 @@
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.0",
     "antd": "^5.19.3",
+    "antd-style": "^3.7.1",
     "lodash": "^4.17.21",
     "rc-tween-one": "^3.0.6",
     "react": "^18.3.1",
