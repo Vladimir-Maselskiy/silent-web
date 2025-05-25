@@ -111,10 +111,14 @@ export const Popup = () => {
     chrome.runtime.sendMessage({ type: 'REINIT_BLOCKING' });
   };
 
+  const onUpgadePlanButtonClick = () => {
+    chrome.tabs.create({ url: 'https://sluk-next.vercel.app/' });
+  };
+
   return (
     <>
       <Header />
-      <Divider />
+      <Divider style={{ marginBottom: '8px' }} />
       {domain && (
         <Flex vertical align="center">
           <Typography.Text>domain name:</Typography.Text>
@@ -128,7 +132,7 @@ export const Popup = () => {
           <Typography.Text style={{ color: 'red', minHeight: '24px' }}>
             {isDomainInExcludedDomains ? 'is in excluded domains' : ' '}
           </Typography.Text>
-          <Divider />
+          <Divider style={{ marginTop: 0 }} />
           <AddNewTargetInput />
           <Divider />
           <Button type="dashed" onClick={toggleDomainInExcludedDomains}>
@@ -157,6 +161,15 @@ export const Popup = () => {
             disabled={isStyleSwitchDisabled}
           />
         )}
+      </Flex>
+      <Divider />
+      <Flex justify="center">
+        <Button
+          onClick={onUpgadePlanButtonClick}
+          style={{ backgroundColor: '#637680', color: 'white' }}
+        >
+          Upgrade to Pro
+        </Button>
       </Flex>
     </>
   );
