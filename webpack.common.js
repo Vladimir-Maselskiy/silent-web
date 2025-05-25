@@ -14,6 +14,11 @@ module.exports = env => {
     module: {
       rules: [
         {
+          test: /\.svg$/,
+          use: ['@svgr/webpack'],
+        },
+
+        {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /node_modules/,
