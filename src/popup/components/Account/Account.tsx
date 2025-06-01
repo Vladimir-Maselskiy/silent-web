@@ -2,6 +2,8 @@ import { createStyles } from 'antd-style';
 import { Button, ConfigProvider, Flex, Typography } from 'antd';
 import EmailIcon from '../../../assets/email.svg';
 import { useEffect, useRef, useState } from 'react';
+import { AuthForm } from '../AuthForm/AuthForm';
+import { TAuthType } from '../../../types/types';
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   buttonStyle: css`
@@ -21,10 +23,10 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 
 export const Account = () => {
   const { styles } = useStyle();
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
-  const [activePanel, setActivePanel] = useState<'signUp' | 'signIn'>('signUp');
-  const [nextPanel, setNextPanel] = useState<'signUp' | 'signIn'>('signIn');
+  const [activePanel, setActivePanel] = useState<TAuthType>('signIn');
+  const [nextPanel, setNextPanel] = useState<TAuthType>('signUp');
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +57,10 @@ export const Account = () => {
     }
   };
 
+  const onEmailButtonClick = (type: 'signUp' | 'signIn') => {
+    setIsAuthFormVisible(true);
+  };
+
   const renderPanel = (type: 'signUp' | 'signIn') => (
     <Flex
       justify="center"
@@ -63,6 +69,9 @@ export const Account = () => {
       gap={16}
       style={{ padding: 20, height: 372, width: '50%' }}
     >
+      <Typography.Title level={3}>
+        {type === 'signUp' ? 'Sign up' : 'Sign in'}
+      </Typography.Title>
       <ConfigProvider
         button={{
           className: styles.buttonStyle,
@@ -71,21 +80,23 @@ export const Account = () => {
         <Button icon={<img src="/google-logo.png" style={{ width: 20 }} />}>
           Continue with Google
         </Button>
-        <Button icon={<EmailIcon />}>
+        <Button icon={<EmailIcon />} onClick={() => onEmailButtonClick(type)}>
           {type === 'signUp' ? 'Continue with Email' : 'Sign in with Email'}
         </Button>
       </ConfigProvider>
       <Typography.Text>
-        {type === 'signUp'
+        {type === 'signIn'
           ? "Don't have an account?"
-          : 'Already have an account?'}{' '}
+          : 'Already have an account?'}
         <Button type="link" onClick={handleSwitch}>
-          {type === 'signUp' ? 'Sign up' : 'Sign in'}
+          {type === 'signIn' ? 'Sign up' : 'Sign in'}
         </Button>
       </Typography.Text>
     </Flex>
   );
-  return (
+  return isAuthFormVisible ? (
+    <AuthForm authType={activePanel} />
+  ) : (
     <div style={{ position: 'relative', overflowX: 'hidden', width: '100%' }}>
       <div style={{ display: 'flex', width: '200%' }} ref={sliderRef}>
         {renderPanel(activePanel)}
