@@ -3,11 +3,13 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const { verify } = require('crypto');
 
 module.exports = env => {
   return {
     entry: {
       popup: path.resolve('src/popup/index.tsx'),
+      verify: path.resolve('src/verify/index.tsx'),
       options: path.resolve('src/options/index.tsx'),
       background: path.resolve('src/background/background.ts'),
     },
@@ -50,7 +52,7 @@ module.exports = env => {
           },
         ],
       }),
-      ...getHtlmPlugins(['popup', 'options']),
+      ...getHtlmPlugins(['popup', 'options', 'verify']),
     ],
     optimization:
       env === 'production'
