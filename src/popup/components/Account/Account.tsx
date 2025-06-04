@@ -1,11 +1,12 @@
 import { createStyles } from 'antd-style';
-import { Button, ConfigProvider, Flex, Spin, Typography } from 'antd';
+import { Button, ConfigProvider, Flex, Typography } from 'antd';
 import EmailIcon from '../../../assets/email.svg';
 import { useEffect, useRef, useState } from 'react';
 import { AuthForm } from '../AuthForm/AuthForm';
 import { TAuthType } from '../../../types/types';
 import { User } from '../User/User';
 import { domain } from '../../../assets/config/domain';
+import { Loader } from '../Loader/Loader';
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   buttonStyle: css`
@@ -206,13 +207,11 @@ export const Account = () => {
     </Flex>
   );
   return isLoading ? (
-    <Flex justify="center" align="center" style={{ height: 410 }}>
-      <Spin />
-    </Flex>
+    <Loader />
   ) : isAuth ? (
     <User email={userEmail} setIsAuth={setIsAuth} />
   ) : isAuthFormVisible ? (
-    <AuthForm authType={activePanel} />
+    <AuthForm authType={activePanel} setIsAuth={setIsAuth} />
   ) : (
     <div style={{ position: 'relative', overflowX: 'hidden', width: '100%' }}>
       <div style={{ display: 'flex', width: '200%' }} ref={sliderRef}>

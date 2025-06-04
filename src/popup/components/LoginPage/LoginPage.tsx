@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Button, Divider, Form, Input, Spin } from 'antd';
 import { FieldData } from 'rc-field-form/lib/interface';
 import IconGoogleLogo from '../../img/google-icon.svg';
-// import { signIn, signOut, useSession } from 'next-auth/react';
-// import { createError } from '@/utils/mongo/createError';
-// import { AuthFormBox } from '../AuthFormBox/AuthFormBox';
+import { domain } from '../../../assets/config/domain';
+import { Loader } from '../Loader/Loader';
 
-export default function LoginPage() {
+type TProps = {
+  setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function LoginPage({ setIsAuth }: TProps) {
   const [isEmailInputPassed, setIsEmailInputPassed] = useState(false);
   const [isNextButtonDisabled, setIsNextButtonDisabled] = useState(true);
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
@@ -15,7 +18,30 @@ export default function LoginPage() {
   const [form] = Form.useForm();
 
   const onFinish = async (values: any) => {
+    setIsLoading(true);
     const { email, password } = values;
+
+    try {
+      const response = await fetch(`${domain}/api/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log('Server response:', data);
+
+      if (data.success) {
+        chrome.storage.local.set({ userId: data.user._id });
+        setIsAuth(true);
+      } else {
+        alert(data.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onFieldsChange = (
@@ -48,7 +74,9 @@ export default function LoginPage() {
     setIsEmailInputPassed(false);
   };
 
-  return (
+  return isLoading ? (
+    <Loader />
+  ) : (
     <Form
       form={form}
       name="loginForm"

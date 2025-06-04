@@ -5,12 +5,17 @@ import { TAuthType } from '../../../types/types';
 
 type TProps = {
   authType: TAuthType;
+  setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const AuthForm = ({ authType }: TProps) => {
+export const AuthForm = ({ authType, setIsAuth }: TProps) => {
   return (
     <Flex align="center" justify="center" style={{ marginTop: '24px' }}>
-      {authType === 'signIn' ? <LoginPage /> : <RegisterPage />}
+      {authType === 'signIn' ? (
+        <LoginPage setIsAuth={setIsAuth} />
+      ) : (
+        <RegisterPage />
+      )}
     </Flex>
   );
 };
