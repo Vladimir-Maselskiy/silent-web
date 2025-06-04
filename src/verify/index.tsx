@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { Modal, Input, Form, message, Button } from 'antd';
+import { domain } from '../assets/config/domain';
 
 const App = () => {
   const [helpMessage, setHelpMessage] = useState('');
@@ -18,7 +19,7 @@ const App = () => {
     try {
       const { code } = await form.validateFields();
       setIsLoading(true);
-      const res = await fetch('http://localhost:3000/api/verify-code', {
+      const res = await fetch(`${domain}/api/verify-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

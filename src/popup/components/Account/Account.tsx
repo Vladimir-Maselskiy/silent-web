@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AuthForm } from '../AuthForm/AuthForm';
 import { TAuthType } from '../../../types/types';
 import { User } from '../User/User';
+import { domain } from '../../../assets/config/domain';
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   buttonStyle: css`
@@ -29,7 +30,8 @@ export const Account = () => {
   const [activePanel, setActivePanel] = useState<TAuthType>('signIn');
   const [nextPanel, setNextPanel] = useState<TAuthType>('signUp');
   const [isAuth, setIsAuth] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState('');
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -38,8 +40,6 @@ export const Account = () => {
   }, [activePanel]);
 
   useEffect(() => {
-    setIsLoading(true);
-
     getIsAuth()
       .then(() => {
         setIsLoading(false);
@@ -52,9 +52,29 @@ export const Account = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (isAuth) {
+      setIsLoading(true);
+      chrome.storage.local.get('userId').then(async data => {
+        const response = await fetch(`${domain}/api/users/${data.userId}`, {
+          method: 'GET',
+        }).then(res => res.json());
+        if (!response.success) {
+          setIsAuth(false);
+          chrome.storage.local.remove('userId');
+          setIsLoading(false);
+          setUserEmail('');
+        } else {
+          setIsLoading(false);
+          setUserEmail(response.user.email);
+        }
+      });
+    }
+  }, [isAuth]);
+
   const getIsAuth = async () => {
-    const userId = await chrome.storage.local.get('userId');
-    setIsAuth(!!userId.userId);
+    const data = await chrome.storage.local.get('userId');
+    setIsAuth(!!data.userId);
   };
 
   const handleSwitch = () => {
@@ -186,9 +206,11 @@ export const Account = () => {
     </Flex>
   );
   return isLoading ? (
-    <Spin />
+    <Flex justify="center" align="center" style={{ height: 410 }}>
+      <Spin />
+    </Flex>
   ) : isAuth ? (
-    <User />
+    <User email={userEmail} setIsAuth={setIsAuth} />
   ) : isAuthFormVisible ? (
     <AuthForm authType={activePanel} />
   ) : (

@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button, Flex, Form, Input } from 'antd';
 import { FieldData } from 'rc-field-form/lib/interface';
+import { domain } from '../../../assets/config/domain';
 
 export default function RegisterPage() {
   const [isEmailValid, setIsEmailValid] = useState(false);
@@ -26,7 +27,7 @@ export default function RegisterPage() {
     setEmail(email);
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:3000/api/users/register', {
+      const response = await fetch(`${domain}/api/users/register`, {
         method: 'POST',
         body: JSON.stringify(values),
       }).then(res => res.json());
