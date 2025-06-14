@@ -39,7 +39,9 @@ export const Home = () => {
         let tab = tabs[0];
         if (tab.url) {
           const url = new URL(tab.url);
-          const domain = url.hostname;
+          let domain = url.hostname;
+          if (domain === 'ihjlpgmdimggkbogmipdgidnflocabmb')
+            domain = '{{options domain}}';
           setDomain(domain);
         }
       });
@@ -114,8 +116,22 @@ export const Home = () => {
       {domain && (
         <Flex vertical align="center">
           <Typography.Text>domain name:</Typography.Text>
-          <Flex align="center" justify="center" gap={8}>
-            <Typography.Text style={{ fontSize: '24px' }}>
+          <Flex
+            align="center"
+            justify="center"
+            gap={8}
+            style={{ width: '100%' }}
+          >
+            <Typography.Text
+              style={{
+                fontSize: '24px',
+                maxWidth: '80%',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textAlign: 'center',
+              }}
+            >
               {domain}
             </Typography.Text>
             {IconMap[domainId]}

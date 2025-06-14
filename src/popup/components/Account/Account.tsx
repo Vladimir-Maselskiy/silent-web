@@ -8,6 +8,11 @@ import { User } from '../User/User';
 import { domain } from '../../../assets/config/domain';
 import { Loader } from '../Loader/Loader';
 
+type TProps = {
+  isAuth: boolean;
+  setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 const useStyle = createStyles(({ prefixCls, css }) => ({
   buttonStyle: css`
     & {
@@ -24,13 +29,12 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
 }));
 
-export const Account = () => {
+export const Account = ({ isAuth, setIsAuth }: TProps) => {
   const { styles } = useStyle();
   const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [activePanel, setActivePanel] = useState<TAuthType>('signIn');
   const [nextPanel, setNextPanel] = useState<TAuthType>('signUp');
-  const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userEmail, setUserEmail] = useState('');
 
@@ -107,67 +111,62 @@ export const Account = () => {
 
   const onGoogleAuthButtonClick = () => {
     console.log('onGoogleAuthButtonClick');
-    // const CLIENT_ID =
-    //   '848495744147-dcpqbmpbh7c0dfkiam9sj1ga9n7u0aad.apps.googleusercontent.com';
-    // const REDIRECT_URI = chrome.identity.getRedirectURL();
-    // const SCOPES = 'profile email';
+    const CLIENT_ID =
+      '848495744147-54r8u6ovii2187l8srst0qtoevd88eod.apps.googleusercontent.com';
+    const REDIRECT_URI = chrome.identity.getRedirectURL();
+    const SCOPES = 'profile email';
 
-    // const authUrl =
-    //   `https://accounts.google.com/o/oauth2/v2/auth` +
-    //   `?client_id=${CLIENT_ID}` +
-    //   `&response_type=token` +
-    //   `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    //   `&scope=${encodeURIComponent(SCOPES)}` +
-    //   `&prompt=select_account`;
+    console.log('REDIRECT_URI', REDIRECT_URI);
 
-    // chrome.identity.launchWebAuthFlow(
-    //   {
-    //     url: authUrl,
-    //     interactive: true,
-    //   },
-    //   function (redirectUrl) {
-    //     if (chrome.runtime.lastError) {
-    //       console.error('Auth error:', chrome.runtime.lastError.message);
-    //       return;
-    //     }
+    const authUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth` +
+      `?client_id=${CLIENT_ID}` +
+      `&response_type=token` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&scope=${encodeURIComponent(SCOPES)}` +
+      `&prompt=select_account`;
 
-    //     const params = new URLSearchParams(
-    //       new URL(redirectUrl).hash.substring(1)
-    //     );
-    //     const accessToken = params.get('access_token');
+    chrome.identity.launchWebAuthFlow(
+      {
+        url: authUrl,
+        interactive: true,
+      },
+      function (redirectUrl) {
+        if (chrome.runtime.lastError) {
+          console.error('Auth error:', chrome.runtime.lastError.message);
+          return;
+        }
 
-    //     console.log('New token (via WebAuthFlow):', accessToken);
-    //   }
-    // );
-
-    chrome.identity.getAuthToken({ interactive: true }, token => {
-      if (chrome.runtime.lastError || !token) {
-        console.error('Authorization failed:', chrome.runtime.lastError);
-        alert('Не вдалося авторизуватись. Спробуй ще раз.');
-        return;
-      }
-
-      chrome.identity.removeCachedAuthToken({ token }, function () {
-        chrome.identity.getAuthToken(
-          { interactive: true },
-          function (newToken) {
-            fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-              headers: { Authorization: 'Bearer ' + newToken },
-            })
-              .then(response => response.json())
-              .then(userInfo => {
-                console.log('User info:', userInfo);
-                alert(`Привіт, ${userInfo.name}!`);
-                // Тут можна зберегти userInfo або передати в інші частини розширення
-              })
-              .catch(error => {
-                console.error('Failed to fetch user info:', error);
-                alert('Не вдалося отримати інформацію про користувача.');
-              });
-          }
+        const params = new URLSearchParams(
+          new URL(redirectUrl).hash.substring(1)
         );
-      });
-    });
+        const accessToken = params.get('access_token');
+
+        if (!accessToken) {
+          console.error('Access token not found in redirect URL');
+          return;
+        }
+
+        setIsLoading(true);
+        fetch(`${domain}/api/users/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              chrome.storage.local.set({ userId: data.user._id });
+              setIsAuth(true);
+            } else {
+              alert(data.error || 'Login failed');
+            }
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      }
+    );
   };
 
   const renderPanel = (type: 'signUp' | 'signIn') => (

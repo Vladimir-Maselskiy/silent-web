@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.13.2",
+  "version": "1.1.4",
   "name": "Sluk",
   "description": "Tools for remove web content",
   "icons": {
@@ -13,10 +13,7 @@
     "default_title": "A-React-Title",
     "default_popup": "popup.html"
   },
-  "oauth2": {
-    "client_id": "848495744147-dcpqbmpbh7c0dfkiam9sj1ga9n7u0aad.apps.googleusercontent.com",
-    "scopes": ["openid", "email", "profile"]
-  },
+
   "permissions": ["storage", "tabs", "identity"],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -153,5 +150,6 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "incognito": "not_allowed"
+  "incognito": "not_allowed",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw8BEQGZGd1v/CS42gVw24IhAQmTb+Mg8M9DBM+5OarFAR4Wi5iQYiZtOm8xFkDVTYDLqGUagWmEexdYI2a+nes0SxDZmSZ9eL4JOHvZguvKT8EiECB9iyCSP5cvNDNQbylV1m03ixoM7SuRvw9TlmVUvRqb2sjjqSbmuAtKfJSnnfktLjSbcovqAnLbkmUjLZ4TQpCMGm53I4/g7kjLs3gATnlJBuJK+fO7E+Z103vpW6P6CLPNszc0lYwWzexEXJn9ijJJ5mBmIzlHCZj6rtZp0lduVQwJHVM3oGLLAb7Y8U5gQn8D4QbQ72bSNjxnQT5DJxKb5EXj49WjmM8rcSwIDAQAB"
 }
