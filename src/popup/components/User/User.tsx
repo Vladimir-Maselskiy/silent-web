@@ -9,7 +9,7 @@ type TProps = {
 export const User = ({ email, setIsAuth }: TProps) => {
   const onSignOutClick = () => {
     setIsAuth(false);
-    chrome.storage.local.remove('userId');
+    chrome.storage.local.clear();
   };
 
   return (

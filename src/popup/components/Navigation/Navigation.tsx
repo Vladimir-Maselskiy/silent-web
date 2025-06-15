@@ -22,7 +22,8 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     }
     &:hover:not(:disabled):not(.active) {
       text-decoration: underline;
-      background: rgba(0, 0, 0, 0.2) !important;
+      /* background: rgba(0, 0, 0, 0.2) !important; */
+      background: #527a8c !important;
       color: #fff !important;
       border: none !important;
     }
@@ -71,10 +72,8 @@ export const Navigation = ({
         <Flex
           justify="center"
           style={{
-            // backgroundColor: '#637680',
             backgroundColor: '#527a8c',
 
-            // backgroundColor: '#b2d2e5',
             marginTop: 24,
             position: 'fixed',
             bottom: 0,

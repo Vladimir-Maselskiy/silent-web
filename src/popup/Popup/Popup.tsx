@@ -7,6 +7,7 @@ import { Navigation } from '../components/Navigation/Navigation';
 import { TPopupTab } from '../../types/types';
 import { Account } from '../components/Account/Account';
 import { domain } from '../../assets/config/domain';
+import { Upgrade } from '../components/Upgrade/Upgrade';
 
 export const Popup = () => {
   const [isSubscriptionActive, setIsSubscriptionActive] = useState<
@@ -33,8 +34,12 @@ export const Popup = () => {
         console.log('data', data);
         setIsSubscriptionActive(data.isActive);
         setIsTrial(data.isTrial);
-
-        chrome.storage.local.set({ isSubscriptionActive: data.isActive });
+        chrome.storage.local.set({
+          trialStartedAt: data.trialStartedAt,
+          trialDuration: data.trialDuration,
+          email: data.email,
+          isSubscriptionActive: data.isActive,
+        });
       } catch (err) {
         console.error('Error checking subscription:', err);
         setIsSubscriptionActive(false);
@@ -70,7 +75,9 @@ export const Popup = () => {
           <Home />
         ) : null;
       case 'upgrade':
-        return isAuth ? <div>Upgrade</div> : null;
+        return isAuth ? (
+          <Upgrade isTrial={isTrial} setIsTrial={setIsTrial} />
+        ) : null;
       case 'account':
         return <Account isAuth={isAuth} setIsAuth={setIsAuth} />;
     }

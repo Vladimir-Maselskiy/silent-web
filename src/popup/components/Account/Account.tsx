@@ -57,29 +57,31 @@ export const Account = ({ isAuth, setIsAuth }: TProps) => {
       });
   }, []);
 
-  useEffect(() => {
-    if (isAuth) {
-      setIsLoading(true);
-      chrome.storage.local.get('userId').then(async data => {
-        const response = await fetch(`${domain}/api/users/${data.userId}`, {
-          method: 'GET',
-        }).then(res => res.json());
-        if (!response.success) {
-          setIsAuth(false);
-          chrome.storage.local.remove('userId');
-          setIsLoading(false);
-          setUserEmail('');
-        } else {
-          setIsLoading(false);
-          setUserEmail(response.user.email);
-        }
-      });
-    }
-  }, [isAuth]);
+  // useEffect(() => {
+  //   if (isAuth) {
+  //     setIsLoading(true);
+  //     chrome.storage.local.get('userId').then(async data => {
+  //       const response = await fetch(`${domain}/api/users/${data.userId}`, {
+  //         method: 'GET',
+  //       }).then(res => res.json());
+  //       if (!response.success) {
+  //         setIsAuth(false);
+  //         chrome.storage.local.remove('userId');
+  //         setIsLoading(false);
+  //         setUserEmail('');
+  //       } else {
+  //         setIsLoading(false);
+  //         setUserEmail(response.user.email);
+  //       }
+  //     });
+  //   }
+  // }, [isAuth]);
 
   const getIsAuth = async () => {
-    const data = await chrome.storage.local.get('userId');
-    setIsAuth(!!data.userId);
+    chrome.storage.local.get(['userId', 'email'], ({ userId, email }) => {
+      setIsAuth(!!userId);
+      setUserEmail(email);
+    });
   };
 
   const handleSwitch = () => {

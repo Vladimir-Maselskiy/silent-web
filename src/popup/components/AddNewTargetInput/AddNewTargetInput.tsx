@@ -29,6 +29,23 @@ export const AddNewTargetInput = () => {
     setCheckedList(list);
   };
 
+  const updateOptionPage = () => {
+    chrome.tabs.query(
+      {
+        url: 'chrome-extension://ihjlpgmdimggkbogmipdgidnflocabmb/options.html',
+      },
+      tabs => {
+        const optionsTab = tabs[0];
+
+        if (optionsTab?.id) {
+          chrome.tabs.sendMessage(optionsTab.id, {
+            type: 'UPDATE_TARGETS',
+          });
+        }
+      }
+    );
+  };
+
   const addTarget = async ({
     target,
     checkedList,
@@ -68,8 +85,9 @@ export const AddNewTargetInput = () => {
 
       if (result.success === true) {
         setTarget('');
+        updateOptionPage();
       }
-    }, 1500);
+    }, 500);
   };
 
   return (
@@ -79,6 +97,7 @@ export const AddNewTargetInput = () => {
         value={target}
         onChange={e => setTarget(e.target.value)}
         placeholder="Enter word or phrase"
+        onPressEnter={() => addTarget({ target, checkedList })}
       />
       <Flex align="center" gap={8}>
         <CheckboxGroup

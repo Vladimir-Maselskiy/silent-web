@@ -46,10 +46,32 @@ export const Options = () => {
     onSelectOption({ key: '1' });
   }, []);
 
+  // useEffect(() => {
+  //   const handleVisibilityChange = () => {
+  //     if (document.visibilityState === 'visible') {
+  //       onSelectOption({ key: webResourceKey });
+  //       setWebResourceLabel(getWebResourceByKey(webResourceKey));
+  //     }
+  //   };
+
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  //   return () => {
+  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
+  //   };
+  // }, []);
+
   useEffect(() => {
     onSelectOption({ key: webResourceKey });
     setWebResourceLabel(getWebResourceByKey(webResourceKey));
   }, [webResourceKey]);
+
+  chrome.runtime.onMessage.addListener((message, sender, response) => {
+    if (message.type === 'UPDATE_TARGETS') {
+      onSelectOption({ key: webResourceKey });
+      setWebResourceLabel(getWebResourceByKey(webResourceKey));
+    }
+  });
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
