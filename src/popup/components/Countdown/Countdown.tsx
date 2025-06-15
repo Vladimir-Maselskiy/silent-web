@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 type TProps = {};
 
 export const Countdown = () => {
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(null);
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -21,18 +21,23 @@ export const Countdown = () => {
     );
   }, []);
 
+  const onFinishTrial = () => {
+    chrome.runtime.sendMessage({ type: 'FINISH_TRIAL' });
+  };
+
   return (
     <div>
-      {secondsLeft ? (
+      {secondsLeft === null ? (
+        <Spin />
+      ) : (
         <Flex align="center" vertical>
           <Typography.Text strong>Trial time left:</Typography.Text>
           <Statistic.Countdown
             value={Date.now() + secondsLeft * 1000}
             format="DD:HH:mm:ss"
+            onFinish={onFinishTrial}
           />
         </Flex>
-      ) : (
-        <Spin />
       )}
     </div>
   );

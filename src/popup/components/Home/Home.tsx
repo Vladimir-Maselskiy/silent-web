@@ -6,12 +6,17 @@ import {
   RedditOutlined,
 } from '@ant-design/icons';
 import { AddNewTargetInput } from '../AddNewTargetInput/AddNewTargetInput';
+import { TPopupTab } from '../../../types/types';
+
+type TProps = {
+  setCurrentTab: React.Dispatch<React.SetStateAction<TPopupTab>>;
+};
 
 const IconMap = {
   '2': <RedditOutlined style={{ fontSize: '24px' }} />,
 };
 
-export const Home = () => {
+export const Home = ({ setCurrentTab }: TProps) => {
   const [domain, setDomain] = useState('');
   const [isBlocking, setIsBlocking] = useState(undefined);
   const [domainId, setDomainId] = useState('1');
@@ -20,7 +25,14 @@ export const Home = () => {
     useState(false);
   const [styleSwitchValue, setStyleSwitchValue] = useState(null);
   const [isStyleSwitchDisabled, setIsStyleSwitchDisabled] = useState(false);
-  const onBlockingButtonClick = () => {
+  const onBlockingButtonClick = async () => {
+    const isActive = await chrome.storage.local.get('isActive').then(resp => {
+      return resp.isActive;
+    });
+    if (!isActive) {
+      setCurrentTab('upgrade');
+      return;
+    }
     setIsBlocking(prev => !prev);
   };
 
@@ -67,12 +79,21 @@ export const Home = () => {
   useEffect(() => {
     if (!domainId) return;
     chrome.runtime.sendMessage({ type: 'GET_IS_BLOCKING' }).then(resp => {
+      console.log('resp', resp);
       if (resp) setIsBlocking(resp);
     });
   }, [domainId]);
 
   useEffect(() => {
+    chrome.storage.local.get(['isActive'], ({ isActive }) => {
+      console.log('isActive', isActive);
+      if (!isActive) setIsBlocking(isActive);
+    });
+  }, []);
+
+  useEffect(() => {
     if (!domainId) return;
+
     chrome.runtime.sendMessage({
       type: 'SET_IS_BLOCKING',
       data: { isBlocking },
@@ -81,6 +102,7 @@ export const Home = () => {
       ? setIsStyleSwitchDisabled(false)
       : setIsStyleSwitchDisabled(true);
   }, [isBlocking]);
+
   const onStyleSwitchChange = async (value: boolean) => {
     const view = value ? 'on' : 'off';
     await chrome.runtime.sendMessage({ type: 'SET_STYLE', data: view });

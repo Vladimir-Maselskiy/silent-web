@@ -168,9 +168,8 @@
     chrome.runtime.onMessage.addListener(async (request, sender, response) => {
       if (request.type === 'REINIT_BLOCKING' && isDefaultCanBeBlocking) {
         startScript();
-
-        return response(true);
       }
+      return response(true);
     });
   }
 })();

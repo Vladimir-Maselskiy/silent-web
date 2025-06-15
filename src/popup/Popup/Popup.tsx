@@ -10,6 +10,7 @@ import { domain } from '../../assets/config/domain';
 import { Upgrade } from '../components/Upgrade/Upgrade';
 
 export const Popup = () => {
+  const [isActive, setIsActive] = useState<boolean | null>(null);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState<
     boolean | null
   >(null);
@@ -21,7 +22,7 @@ export const Popup = () => {
     if (!isAuth) return;
     chrome.storage.local.get(['userId'], async ({ userId }) => {
       if (!userId) {
-        setIsSubscriptionActive(false);
+        setIsActive(false);
         return;
       }
 
@@ -32,17 +33,17 @@ export const Popup = () => {
         });
         const data = await res.json();
         console.log('data', data);
-        setIsSubscriptionActive(data.isActive);
+        setIsActive(data.isActive);
         setIsTrial(data.isTrial);
         chrome.storage.local.set({
           trialStartedAt: data.trialStartedAt,
           trialDuration: data.trialDuration,
           email: data.email,
-          isSubscriptionActive: data.isActive,
+          isActive: data.isActive,
         });
       } catch (err) {
         console.error('Error checking subscription:', err);
-        setIsSubscriptionActive(false);
+        setIsActive(false);
       }
     });
   }, [isAuth]);
@@ -60,20 +61,17 @@ export const Popup = () => {
   }, [isAuth]);
 
   useEffect(() => {
-    console.log('isSubscriptionActive', isSubscriptionActive);
-    if (isSubscriptionActive === null) return;
-    if (!isSubscriptionActive) {
+    console.log('isActive', isActive);
+    if (isActive === null) return;
+    if (!isActive) {
       setCurrentTab('upgrade');
     }
-  }, [isSubscriptionActive]);
+  }, [isActive]);
 
   const getCuttentTab = (tab: TPopupTab) => {
     switch (tab) {
       case 'home':
-        return isAuth &&
-          (isSubscriptionActive || isSubscriptionActive === null) ? (
-          <Home />
-        ) : null;
+        return isAuth ? <Home setCurrentTab={setCurrentTab} /> : null;
       case 'upgrade':
         return isAuth ? (
           <Upgrade isTrial={isTrial} setIsTrial={setIsTrial} />
@@ -94,7 +92,7 @@ export const Popup = () => {
         setCurrentTab={setCurrentTab}
         isAuth={isAuth}
         setIsAuth={setIsAuth}
-        isSubscriptionActive={isSubscriptionActive}
+        isActive={isActive}
       />
     </>
   );

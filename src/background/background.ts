@@ -35,6 +35,8 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     setStyle(data).then(resp => response(resp));
   } else if (type === 'GET_STYLE') {
     getStyle().then(resp => response(resp));
+  } else if (type === 'FINISH_TRIAL') {
+    finishTrial().then(resp => response(resp));
   }
   return true;
 });
@@ -86,9 +88,12 @@ async function setIsBlocking(data: { isBlocking: boolean }) {
 
 async function getIsBlocking() {
   const isBlocking = (await getFromLocalstorage('isBlocking')) || false;
+  const isActive = (await getFromLocalstorage('isActive')) || false;
   const isActiveTabDomainInExcludedDomains =
     await getIsActiveTabDomainInExcludedDomains();
-  return (isBlocking && !isActiveTabDomainInExcludedDomains) || false;
+  return (
+    (isActive && isBlocking && !isActiveTabDomainInExcludedDomains) || false
+  );
 }
 
 async function getIsActiveTabDomainInExcludedDomains() {
@@ -174,6 +179,7 @@ function createItemId(data) {
 
 async function reInitBlokingOnCurrentPage() {
   const activeTab = await getActiveTab();
+  console.log('activeTab', activeTab);
   if (!activeTab) return;
   chrome.tabs.sendMessage(
     activeTab.id,
@@ -199,6 +205,10 @@ async function setStyle(view: 'on' | 'off') {
 
 async function getStyle() {
   return (await getFromLocalstorage('style')) || 'on';
+}
+
+async function finishTrial() {
+  await chrome.storage.local.set({ isActive: false });
 }
 
 async function getFromLocalstorage(key: string) {
