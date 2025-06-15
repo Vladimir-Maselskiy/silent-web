@@ -1,3 +1,4 @@
+import { checkSubscription } from './utils/checkSubscription';
 import { specialDomains } from './utils/specialDomains';
 
 let activeTabId = null;
@@ -37,6 +38,8 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
   }
   return true;
 });
+
+checkSubscription();
 
 async function getTargets() {
   return (await getFromLocalstorage('targets')) || [];

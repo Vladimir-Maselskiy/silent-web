@@ -6,32 +6,71 @@ import { Home } from '../components/Home/Home';
 import { Navigation } from '../components/Navigation/Navigation';
 import { TPopupTab } from '../../types/types';
 import { Account } from '../components/Account/Account';
+import { domain } from '../../assets/config/domain';
 
 export const Popup = () => {
+  const [isSubscriptionActive, setIsSubscriptionActive] = useState<
+    boolean | null
+  >(null);
   const [currentTab, setCurrentTab] = useState<TPopupTab>('home');
   const [isAuth, setIsAuth] = useState(false);
+  const [isTrial, setIsTrial] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isAuth) return;
+    chrome.storage.local.get(['userId'], async ({ userId }) => {
+      if (!userId) {
+        setIsSubscriptionActive(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${domain}/api/check-subscription`, {
+          method: 'POST',
+          body: JSON.stringify({ userId }),
+        });
+        const data = await res.json();
+        console.log('data', data);
+        setIsSubscriptionActive(data.isActive);
+        setIsTrial(data.isTrial);
+
+        chrome.storage.local.set({ isSubscriptionActive: data.isActive });
+      } catch (err) {
+        console.error('Error checking subscription:', err);
+        setIsSubscriptionActive(false);
+      }
+    });
+  }, [isAuth]);
 
   useEffect(() => {
     if (isAuth) return;
     chrome.storage.local.get(['userId'], ({ userId }) => {
       if (userId) {
+        // TODO: check user by id
         setIsAuth(true);
-        console.log('userId', userId);
-        // checkTrialStatus(userToken);
       } else {
         setCurrentTab('account');
-        // setShowRegistration(true);
-        // setLoading(false);
       }
     });
   }, [isAuth]);
 
+  useEffect(() => {
+    console.log('isSubscriptionActive', isSubscriptionActive);
+    if (isSubscriptionActive === null) return;
+    if (!isSubscriptionActive) {
+      setCurrentTab('upgrade');
+    }
+  }, [isSubscriptionActive]);
+
   const getCuttentTab = (tab: TPopupTab) => {
     switch (tab) {
       case 'home':
-        return <Home />;
+        return isAuth &&
+          (isSubscriptionActive || isSubscriptionActive === null) ? (
+          <Home />
+        ) : null;
       case 'upgrade':
-        return <div>Upgrade</div>;
+        return isAuth ? <div>Upgrade</div> : null;
       case 'account':
         return <Account isAuth={isAuth} setIsAuth={setIsAuth} />;
     }
@@ -40,17 +79,15 @@ export const Popup = () => {
     <>
       <Header />
       <Divider style={{ marginBottom: '8px' }} />
-      {isAuth ? (
-        getCuttentTab(currentTab)
-      ) : (
-        <Account isAuth={isAuth} setIsAuth={setIsAuth} />
-      )}
+
+      {getCuttentTab(currentTab)}
 
       <Navigation
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         isAuth={isAuth}
         setIsAuth={setIsAuth}
+        isSubscriptionActive={isSubscriptionActive}
       />
     </>
   );

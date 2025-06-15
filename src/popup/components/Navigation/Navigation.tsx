@@ -44,6 +44,7 @@ type TProps = {
   setCurrentTab: React.Dispatch<React.SetStateAction<TPopupTab>>;
   isAuth: boolean;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  isSubscriptionActive: boolean;
 };
 
 export const Navigation = ({
@@ -51,6 +52,7 @@ export const Navigation = ({
   setCurrentTab,
   isAuth,
   setIsAuth,
+  isSubscriptionActive,
 }: TProps) => {
   const { styles } = useStyle();
 
@@ -83,7 +85,7 @@ export const Navigation = ({
             onClick={() => onTabButtonClick('home')}
             className={currentTab === 'home' ? 'active' : ''}
             icon={<HomeOutlined style={{ fontSize: '24px' }} />}
-            disabled={!isAuth}
+            disabled={!isAuth || !isSubscriptionActive}
           >
             Home
           </Button>
