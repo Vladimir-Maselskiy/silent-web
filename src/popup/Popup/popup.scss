@@ -1,8 +1,15 @@
+html {
+  overflow: hidden;
+  max-height: 580px;
+}
+
 body {
   width: 400px;
   min-height: 580px;
+  max-height: 580px;
   background-color: rgb(246, 246, 246);
   margin: 0;
+  overflow: hidden;
 }
 
 body > div {

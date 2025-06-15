@@ -3,6 +3,7 @@ import { Button, Flex, Statistic } from 'antd';
 import { useEffect, useState } from 'react';
 import { domain } from '../../../assets/config/domain';
 import { Countdown } from '../Countdown/Countdown';
+import { SubscribeSection } from '../SubscribeSection/SubscribeSection';
 // const { Timer } = Statistic;
 
 type TProps = {
@@ -28,7 +29,12 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
         });
         const data = await res.json();
 
-        chrome.storage.local.set({ isSubscriptionActive: data.isActive });
+        await chrome.storage.local.set({
+          isSubscriptionActive: data.isActive,
+          trialStartedAt: data.trialStartedAt,
+          trialDuration: data.trialDuration,
+          isActive: data.isActive,
+        });
 
         setIsTrial(data.isTrial);
       } catch (err) {
@@ -38,7 +44,12 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
   };
 
   return (
-    <Flex align="center" justify="center" style={{ marginTop: '24px' }}>
+    <Flex
+      align="center"
+      justify="center"
+      vertical
+      style={{ marginTop: '24px' }}
+    >
       {isTrial ? (
         <Countdown />
       ) : (
@@ -51,6 +62,7 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
           Start trial
         </Button>
       )}
+      <SubscribeSection />
     </Flex>
   );
 };

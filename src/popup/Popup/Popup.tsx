@@ -31,6 +31,11 @@ export const Popup = () => {
           method: 'POST',
           body: JSON.stringify({ userId }),
         });
+        if (!res.ok) {
+          chrome.storage.local.remove(['userId']);
+          setIsAuth(false);
+          return;
+        }
         const data = await res.json();
         console.log('data', data);
         setIsActive(data.isActive);
