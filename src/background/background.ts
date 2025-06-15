@@ -179,7 +179,6 @@ function createItemId(data) {
 
 async function reInitBlokingOnCurrentPage() {
   const activeTab = await getActiveTab();
-  console.log('activeTab', activeTab);
   if (!activeTab) return;
   chrome.tabs.sendMessage(
     activeTab.id,

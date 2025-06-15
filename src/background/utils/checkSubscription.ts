@@ -22,8 +22,6 @@ export function checkSubscription() {
           });
           const data = await res.json();
           console.log('data', data);
-          // setIsSubscriptionActive(data.isActive);
-          // setIsTrial(data.isTrial);
 
           chrome.storage.local.set({ isSubscriptionActive: data.isActive });
         } catch (err) {

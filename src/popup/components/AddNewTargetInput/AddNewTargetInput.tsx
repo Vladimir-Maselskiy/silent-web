@@ -25,7 +25,6 @@ export const AddNewTargetInput = () => {
   const [isAddingTargetProcess, setIsAddingTargetProcess] = useState(false);
 
   const onChange = (list: string[]) => {
-    console.log(list);
     setCheckedList(list);
   };
 

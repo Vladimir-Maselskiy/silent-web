@@ -22,7 +22,6 @@ export const ExludedDomains = () => {
       const excludedDomains = await chrome.runtime.sendMessage({
         type: 'GET_EXCLUDED_DOMAINS',
       });
-      console.log('excludedDomains', excludedDomains);
 
       setTags(excludedDomains);
     })();
@@ -37,7 +36,6 @@ export const ExludedDomains = () => {
 
   const handleClose = (removedTag: string) => {
     const newTags = tags.filter(tag => tag !== removedTag);
-    console.log(newTags);
     setTags(newTags);
   };
 

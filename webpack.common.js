@@ -66,17 +66,17 @@ module.exports = env => {
                 extractComments: false,
                 terserOptions: {
                   compress: {
-                    drop_console: true, // Видаляє console.log
-                    dead_code: true, // Видаляє невикористаний код
-                    unused: true, // Видаляє змінні та функції, що не використовуються
-                    collapse_vars: true, // Об'єднує змінні, коли можливо
-                    reduce_vars: true, // Оптимізує повторно використані змінні
+                    drop_console: true,
+                    dead_code: true,
+                    unused: true,
+                    collapse_vars: true,
+                    reduce_vars: true,
                   },
                   format: {
-                    comments: false, // Видаляє коментарі
+                    comments: false,
                   },
                   mangle: {
-                    toplevel: true, // Обфускація глобальних змінних
+                    toplevel: true,
                   },
                 },
               }),

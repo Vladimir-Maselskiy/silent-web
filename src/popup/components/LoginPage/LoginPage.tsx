@@ -29,7 +29,6 @@ export default function LoginPage({ setIsAuth }: TProps) {
       });
 
       const data = await response.json();
-      console.log('Server response:', data);
 
       if (data.success) {
         chrome.storage.local.set({ userId: data.user._id });

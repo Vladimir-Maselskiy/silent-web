@@ -112,13 +112,10 @@ export const Account = ({ isAuth, setIsAuth }: TProps) => {
   };
 
   const onGoogleAuthButtonClick = () => {
-    console.log('onGoogleAuthButtonClick');
     const CLIENT_ID =
       '848495744147-54r8u6ovii2187l8srst0qtoevd88eod.apps.googleusercontent.com';
     const REDIRECT_URI = chrome.identity.getRedirectURL();
     const SCOPES = 'profile email';
-
-    console.log('REDIRECT_URI', REDIRECT_URI);
 
     const authUrl =
       `https://accounts.google.com/o/oauth2/v2/auth` +

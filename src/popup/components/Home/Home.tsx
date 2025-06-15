@@ -79,14 +79,12 @@ export const Home = ({ setCurrentTab }: TProps) => {
   useEffect(() => {
     if (!domainId) return;
     chrome.runtime.sendMessage({ type: 'GET_IS_BLOCKING' }).then(resp => {
-      console.log('resp', resp);
       if (resp) setIsBlocking(resp);
     });
   }, [domainId]);
 
   useEffect(() => {
     chrome.storage.local.get(['isActive'], ({ isActive }) => {
-      console.log('isActive', isActive);
       if (!isActive) setIsBlocking(isActive);
     });
   }, []);
@@ -118,17 +116,14 @@ export const Home = ({ setCurrentTab }: TProps) => {
       const result = await chrome.runtime.sendMessage({
         type: 'REMOVE_CURRENT_DOMAIN_FROM_EXCLUDED_DOMAINS',
       });
-      console.log(result);
     } else {
       const result = await chrome.runtime.sendMessage({
         type: 'ADD_CURRENT_DOMAIN_TO_EXCLUDED_DOMAINS',
       });
-      console.log(result);
     }
     const newValue = await chrome.runtime.sendMessage({
       type: 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS',
     });
-    console.log('newValue', newValue);
     setIsDomainInExcludedDomains(newValue);
     chrome.runtime.sendMessage({ type: 'REINIT_BLOCKING' });
   };

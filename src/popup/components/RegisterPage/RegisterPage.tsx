@@ -56,7 +56,6 @@ export default function RegisterPage() {
     changedFields: FieldData[],
     allFields: FieldData[]
   ) => {
-    console.log(changedFields);
     const field = changedFields[0];
 
     if (!Array.isArray(changedFields)) return;

@@ -10,8 +10,6 @@ export const Countdown = () => {
     chrome.storage.local.get(
       ['trialStartedAt', 'trialDuration'],
       ({ trialStartedAt, trialDuration }) => {
-        console.log('trialStartedAt', trialStartedAt);
-        console.log('trialDuration', trialDuration);
         const secondsPassed = Math.floor(
           (Date.now() - new Date(trialStartedAt).getTime()) / 1000
         );

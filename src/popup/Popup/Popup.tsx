@@ -37,7 +37,6 @@ export const Popup = () => {
           return;
         }
         const data = await res.json();
-        console.log('data', data);
         setIsActive(data.isActive);
         setIsTrial(data.isTrial);
         chrome.storage.local.set({
@@ -66,7 +65,6 @@ export const Popup = () => {
   }, [isAuth]);
 
   useEffect(() => {
-    console.log('isActive', isActive);
     if (isActive === null) return;
     if (!isActive) {
       setCurrentTab('upgrade');
