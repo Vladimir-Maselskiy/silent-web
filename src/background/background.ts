@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
   return true;
 });
 
-checkSubscription();
+// checkSubscription();
 
 async function getTargets() {
   return (await getFromLocalstorage('targets')) || [];

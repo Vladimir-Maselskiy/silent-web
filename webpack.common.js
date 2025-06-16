@@ -43,8 +43,23 @@ module.exports = env => {
       new CopyWebpackPlugin({
         patterns: [
           {
+            from: path.resolve(__dirname, 'src/assets/manifest.json'),
+            to: path.resolve(__dirname, 'dist/manifest.json'),
+            transform(content, absoluteFrom) {
+              if (env === 'production') {
+                const manifest = JSON.parse(content.toString());
+                delete manifest.key;
+                return JSON.stringify(manifest, null, 2);
+              }
+              return content;
+            },
+          },
+          {
             from: path.resolve('src/assets'),
             to: path.resolve('dist'),
+            globOptions: {
+              ignore: ['**/manifest.json'],
+            },
           },
           {
             from: path.resolve('src/js'),
