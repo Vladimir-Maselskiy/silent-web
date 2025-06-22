@@ -1,22 +1,33 @@
 import { Flex, Spin, Statistic, Typography } from 'antd';
 import { useEffect, useState } from 'react';
+import { TSubscriptionData } from '../../../types/types';
 
-type TProps = {};
+type TProps = { subscriptionData: TSubscriptionData };
 
-export const Countdown = () => {
+export const Countdown = ({ subscriptionData }: TProps) => {
   const [secondsLeft, setSecondsLeft] = useState(null);
 
+  const { isSubscriptionStarted, subscriptionExpiresAt } = subscriptionData;
+
   useEffect(() => {
-    chrome.storage.local.get(
-      ['trialStartedAt', 'trialDuration'],
-      ({ trialStartedAt, trialDuration }) => {
-        const secondsPassed = Math.floor(
-          (Date.now() - new Date(trialStartedAt).getTime()) / 1000
-        );
-        const secondsLeft = Math.max(0, trialDuration / 1000 - secondsPassed);
-        setSecondsLeft(secondsLeft);
-      }
-    );
+    if (isSubscriptionStarted) {
+      const secondsLeft = Math.max(
+        0,
+        new Date(subscriptionExpiresAt).getTime() - Date.now()
+      );
+      setSecondsLeft(secondsLeft / 1000);
+    } else {
+      chrome.storage.local.get(
+        ['trialStartedAt', 'trialDuration'],
+        ({ trialStartedAt, trialDuration }) => {
+          const secondsPassed = Math.floor(
+            (Date.now() - new Date(trialStartedAt).getTime()) / 1000
+          );
+          const secondsLeft = Math.max(0, trialDuration / 1000 - secondsPassed);
+          setSecondsLeft(secondsLeft);
+        }
+      );
+    }
   }, []);
 
   const onFinishTrial = () => {
@@ -29,7 +40,11 @@ export const Countdown = () => {
         <Spin />
       ) : (
         <Flex align="center" vertical>
-          <Typography.Text strong>Trial time left:</Typography.Text>
+          <Typography.Text strong>
+            {isSubscriptionStarted
+              ? 'Subscription time left:'
+              : 'Trial time left:'}
+          </Typography.Text>
           <Statistic.Countdown
             value={Date.now() + secondsLeft * 1000}
             format="DD:HH:mm:ss"

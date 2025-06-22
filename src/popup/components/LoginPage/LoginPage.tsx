@@ -31,7 +31,10 @@ export default function LoginPage({ setIsAuth }: TProps) {
       const data = await response.json();
 
       if (data.success) {
-        chrome.storage.local.set({ userId: data.user._id });
+        chrome.storage.local.set({
+          userId: data.user._id,
+          email: data.user.email,
+        });
         setIsAuth(true);
       } else {
         alert(data.error || 'Login failed');

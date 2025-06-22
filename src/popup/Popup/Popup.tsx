@@ -4,19 +4,17 @@ import { useEffect, useState } from 'react';
 
 import { Home } from '../components/Home/Home';
 import { Navigation } from '../components/Navigation/Navigation';
-import { TPopupTab } from '../../types/types';
+import { TPopupTab, TSubscriptionData } from '../../types/types';
 import { Account } from '../components/Account/Account';
 import { domain } from '../../assets/config/domain';
 import { Upgrade } from '../components/Upgrade/Upgrade';
 
 export const Popup = () => {
-  const [isActive, setIsActive] = useState<boolean | null>(null);
-  const [isSubscriptionActive, setIsSubscriptionActive] = useState<
-    boolean | null
-  >(null);
+  const [isActive, setIsActive] = useState<boolean>(null);
   const [currentTab, setCurrentTab] = useState<TPopupTab>('home');
   const [isAuth, setIsAuth] = useState(false);
-  const [isTrial, setIsTrial] = useState<boolean | null>(null);
+  const [subcriptionData, setSubcriptionData] =
+    useState<TSubscriptionData>(null);
 
   useEffect(() => {
     if (!isAuth) return;
@@ -36,14 +34,12 @@ export const Popup = () => {
           setIsAuth(false);
           return;
         }
-        const data = await res.json();
-        setIsActive(data.isActive);
-        setIsTrial(data.isTrial);
+        const data = (await res.json()) as TSubscriptionData;
+        console.log('data', data);
+
+        setSubcriptionData(data);
         chrome.storage.local.set({
-          trialStartedAt: data.trialStartedAt,
-          trialDuration: data.trialDuration,
-          email: data.email,
-          isActive: data.isActive,
+          subcriptionData: data,
         });
       } catch (err) {
         console.error('Error checking subscription:', err);
@@ -77,7 +73,10 @@ export const Popup = () => {
         return isAuth ? <Home setCurrentTab={setCurrentTab} /> : null;
       case 'upgrade':
         return isAuth ? (
-          <Upgrade isTrial={isTrial} setIsTrial={setIsTrial} />
+          <Upgrade
+            subscriptionData={subcriptionData}
+            setSubscriptionData={setSubcriptionData}
+          />
         ) : null;
       case 'account':
         return <Account isAuth={isAuth} setIsAuth={setIsAuth} />;

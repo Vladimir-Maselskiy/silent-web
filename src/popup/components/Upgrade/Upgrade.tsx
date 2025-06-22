@@ -1,18 +1,20 @@
 import { PlaySquareOutlined } from '@ant-design/icons';
-import { Button, Flex, Statistic } from 'antd';
-import { useEffect, useState } from 'react';
+import { Button, Flex } from 'antd';
+import { useState } from 'react';
 import { domain } from '../../../assets/config/domain';
 import { Countdown } from '../Countdown/Countdown';
 import { SubscribeSection } from '../SubscribeSection/SubscribeSection';
-// const { Timer } = Statistic;
+import { TSubscriptionData } from '../../../types/types';
 
 type TProps = {
-  isTrial: boolean | null;
-  setIsTrial: React.Dispatch<React.SetStateAction<boolean | null>>;
+  subscriptionData: TSubscriptionData;
+  setSubscriptionData: React.Dispatch<React.SetStateAction<TSubscriptionData>>;
 };
 
-export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
+export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const { isTrial, isSubscriptionStarted, isActive } = subscriptionData;
 
   const onStartTrialButtonClick = async () => {
     setIsLoading(true);
@@ -35,13 +37,14 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
           trialDuration: data.trialDuration,
           isActive: data.isActive,
         });
-
-        setIsTrial(data.isTrial);
       } catch (err) {
         console.error('Error create trial:', err);
       }
     });
   };
+
+  console.log('subscriptionData', subscriptionData);
+  console.log('isTrial', isTrial);
 
   return (
     <Flex
@@ -50,9 +53,7 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
       vertical
       style={{ marginTop: '24px' }}
     >
-      {isTrial ? (
-        <Countdown />
-      ) : (
+      {isTrial && !isSubscriptionStarted && (
         <Button
           onClick={onStartTrialButtonClick}
           type="primary"
@@ -62,7 +63,8 @@ export const Upgrade = ({ isTrial, setIsTrial }: TProps) => {
           Start trial
         </Button>
       )}
-      <SubscribeSection />
+      <Countdown subscriptionData={subscriptionData} />
+      {isSubscriptionStarted && !isActive && <SubscribeSection />}
     </Flex>
   );
 };

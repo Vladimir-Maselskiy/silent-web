@@ -11,3 +11,12 @@ export type TBillingPlan = {
   duration: number;
   description: string;
 };
+
+export type TSubscriptionData = {
+  email: string;
+  isActive: boolean;
+  isSubscriptionStarted: boolean;
+  isTrial: boolean;
+  role: string;
+  subscriptionExpiresAt: string;
+};
