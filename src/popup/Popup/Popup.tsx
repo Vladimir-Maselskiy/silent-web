@@ -15,6 +15,7 @@ export const Popup = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [subcriptionData, setSubcriptionData] =
     useState<TSubscriptionData>(null);
+  const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
 
   useEffect(() => {
     if (!isAuth) return;
@@ -23,7 +24,6 @@ export const Popup = () => {
         setIsActive(false);
         return;
       }
-
       try {
         const res = await fetch(`${domain}/api/check-subscription`, {
           method: 'POST',
@@ -40,6 +40,7 @@ export const Popup = () => {
         setSubcriptionData(data);
         chrome.storage.local.set({
           subcriptionData: data,
+          email: data.email,
         });
       } catch (err) {
         console.error('Error checking subscription:', err);
@@ -52,7 +53,6 @@ export const Popup = () => {
     if (isAuth) return;
     chrome.storage.local.get(['userId'], ({ userId }) => {
       if (userId) {
-        // TODO: check user by id
         setIsAuth(true);
       } else {
         setCurrentTab('account');
@@ -79,7 +79,14 @@ export const Popup = () => {
           />
         ) : null;
       case 'account':
-        return <Account isAuth={isAuth} setIsAuth={setIsAuth} />;
+        return (
+          <Account
+            isAuth={isAuth}
+            setIsAuth={setIsAuth}
+            isAuthFormVisible={isAuthFormVisible}
+            setIsAuthFormVisible={setIsAuthFormVisible}
+          />
+        );
     }
   };
   return (
@@ -95,6 +102,7 @@ export const Popup = () => {
         isAuth={isAuth}
         setIsAuth={setIsAuth}
         isActive={isActive}
+        setIsAuthFormVisible={setIsAuthFormVisible}
       />
     </>
   );

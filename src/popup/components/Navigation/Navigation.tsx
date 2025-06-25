@@ -46,19 +46,21 @@ type TProps = {
   isAuth: boolean;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   isActive: boolean;
+  setIsAuthFormVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const Navigation = ({
   currentTab,
   setCurrentTab,
   isAuth,
-  setIsAuth,
-  isActive,
+  setIsAuthFormVisible,
 }: TProps) => {
   const { styles } = useStyle();
 
   const onTabButtonClick = (tab: TPopupTab) => {
     setCurrentTab(tab);
+
+    if (tab === 'account') setIsAuthFormVisible(false);
   };
 
   return (

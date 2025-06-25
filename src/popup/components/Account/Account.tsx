@@ -11,6 +11,8 @@ import { Loader } from '../Loader/Loader';
 type TProps = {
   isAuth: boolean;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  isAuthFormVisible: boolean;
+  setIsAuthFormVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
@@ -29,9 +31,13 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
   `,
 }));
 
-export const Account = ({ isAuth, setIsAuth }: TProps) => {
+export const Account = ({
+  isAuth,
+  setIsAuth,
+  isAuthFormVisible,
+  setIsAuthFormVisible,
+}: TProps) => {
   const { styles } = useStyle();
-  const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [activePanel, setActivePanel] = useState<TAuthType>('signIn');
   const [nextPanel, setNextPanel] = useState<TAuthType>('signUp');
@@ -45,7 +51,11 @@ export const Account = ({ isAuth, setIsAuth }: TProps) => {
   }, [activePanel]);
 
   useEffect(() => {
-    getIsAuth()
+    if (!isAuth) {
+      setIsLoading(false);
+      return;
+    }
+    setCurrentUserEmail()
       .then(() => {
         setIsLoading(false);
       })
@@ -55,16 +65,12 @@ export const Account = ({ isAuth, setIsAuth }: TProps) => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [isAuth]);
 
-  const getIsAuth = async () => {
-    chrome.storage.local.get(
-      ['userId', 'subcriptionData'],
-      ({ userId, subcriptionData }) => {
-        setIsAuth(!!userId);
-        setUserEmail(subcriptionData.email);
-      }
-    );
+  const setCurrentUserEmail = async () => {
+    chrome.storage.local.get(['email'], ({ email }) => {
+      setUserEmail(email);
+    });
   };
 
   const handleSwitch = () => {
@@ -138,7 +144,10 @@ export const Account = ({ isAuth, setIsAuth }: TProps) => {
           .then(res => res.json())
           .then(data => {
             if (data.success) {
-              chrome.storage.local.set({ userId: data.user._id });
+              chrome.storage.local.set({
+                userId: data.user._id,
+                email: data.user.email,
+              });
               setIsAuth(true);
             } else {
               alert(data.error || 'Login failed');

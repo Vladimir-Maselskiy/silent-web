@@ -14,7 +14,7 @@ type TProps = {
 export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isTrial, isSubscriptionStarted, isActive } = subscriptionData;
+  const { isSubscriptionStarted, isActive, trialStartedAt } = subscriptionData;
 
   const onStartTrialButtonClick = async () => {
     setIsLoading(true);
@@ -43,9 +43,6 @@ export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
     });
   };
 
-  console.log('subscriptionData', subscriptionData);
-  console.log('isTrial', isTrial);
-
   return (
     <Flex
       align="center"
@@ -53,7 +50,7 @@ export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
       vertical
       style={{ marginTop: '24px' }}
     >
-      {isTrial && !isSubscriptionStarted && (
+      {!isSubscriptionStarted && !trialStartedAt && (
         <Button
           onClick={onStartTrialButtonClick}
           type="primary"
@@ -63,8 +60,15 @@ export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
           Start trial
         </Button>
       )}
-      <Countdown subscriptionData={subscriptionData} />
-      {isSubscriptionStarted && !isActive && <SubscribeSection />}
+      {(trialStartedAt || isSubscriptionStarted) && (
+        <Countdown
+          subscriptionData={subscriptionData}
+          setSubscriptionData={setSubscriptionData}
+        />
+      )}
+      {((isSubscriptionStarted && !isActive) || !isSubscriptionStarted) && (
+        <SubscribeSection />
+      )}
     </Flex>
   );
 };

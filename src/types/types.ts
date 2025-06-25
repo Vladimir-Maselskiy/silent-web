@@ -19,4 +19,6 @@ export type TSubscriptionData = {
   isTrial: boolean;
   role: string;
   subscriptionExpiresAt: string;
+  trialDuration: number;
+  trialStartedAt: string;
 };
