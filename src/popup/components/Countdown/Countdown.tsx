@@ -11,12 +11,11 @@ export const Countdown = ({
   subscriptionData,
   setSubscriptionData,
 }: TProps) => {
+  console.log('subscriptionData', subscriptionData);
   const [secondsLeft, setSecondsLeft] = useState(null);
-
   const { isSubscriptionStarted, subscriptionExpiresAt } = subscriptionData;
 
   useEffect(() => {
-    console.log('in use effect', Date.now());
     if (isSubscriptionStarted) {
       const secondsLeft = Math.max(
         0,
@@ -24,32 +23,32 @@ export const Countdown = ({
       );
       setSecondsLeft(secondsLeft / 1000);
     } else {
-      chrome.storage.local.get(['subcriptionData'], ({ subcriptionData }) => {
+      chrome.storage.local.get(['subscriptionData'], ({ subscriptionData }) => {
         const secondsPassed = Math.floor(
-          (Date.now() - new Date(subcriptionData.trialStartedAt).getTime()) /
+          (Date.now() - new Date(subscriptionData.trialStartedAt).getTime()) /
             1000
         );
         const secondsLeft = Math.max(
           0,
-          subcriptionData.trialDuration / 1000 - secondsPassed
+          subscriptionData.trialDuration / 1000 - secondsPassed
         );
         setSecondsLeft(secondsLeft);
       });
     }
   }, []);
 
-  const onFinishTrial = () => {
-    chrome.runtime.sendMessage({ type: 'FINISH_TRIAL' });
+  const onFinishCount = () => {
+    chrome.runtime.sendMessage({ type: 'STOP_BLOCKING' });
     setSubscriptionData({ ...subscriptionData, isActive: false });
-    chrome.storage.local.get(['subcriptionData'], result => {
-      const currentSettings = result.subcriptionData || {};
+    chrome.storage.local.get(['subscriptionData'], result => {
+      const currentSettings = result.subscriptionData || {};
 
       const updatedSettings = {
         ...currentSettings,
         isActive: false,
       };
 
-      chrome.storage.local.set({ subcriptionData: updatedSettings }, () => {});
+      chrome.storage.local.set({ subscriptionData: updatedSettings }, () => {});
     });
     setSecondsLeft(0);
   };
@@ -68,7 +67,7 @@ export const Countdown = ({
           <Statistic.Countdown
             value={Date.now() + secondsLeft * 1000}
             format="DD:HH:mm:ss"
-            onFinish={onFinishTrial}
+            onFinish={onFinishCount}
           />
         </Flex>
       )}

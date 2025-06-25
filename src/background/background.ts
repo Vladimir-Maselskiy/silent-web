@@ -35,13 +35,13 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     setStyle(data).then(resp => response(resp));
   } else if (type === 'GET_STYLE') {
     getStyle().then(resp => response(resp));
-  } else if (type === 'FINISH_TRIAL') {
-    finishTrial().then(resp => response(resp));
+  } else if (type === 'STOP_BLOCKING') {
+    stopBlocking().then(resp => response(resp));
   }
   return true;
 });
 
-// checkSubscription();
+checkSubscription({ stopBlocking });
 
 async function getTargets() {
   return (await getFromLocalstorage('targets')) || [];
@@ -79,6 +79,7 @@ async function deleteItem(data: any) {
 }
 
 async function setIsBlocking(data: { isBlocking: boolean }) {
+  console.log('setIsBlocking', data);
   const { isBlocking } = data;
   if (isBlocking === undefined) return { result: false };
   await chrome.storage.local.set({ isBlocking });
@@ -88,7 +89,8 @@ async function setIsBlocking(data: { isBlocking: boolean }) {
 
 async function getIsBlocking() {
   const isBlocking = (await getFromLocalstorage('isBlocking')) || false;
-  const isActive = (await getFromLocalstorage('isActive')) || false;
+  const raw = await getFromLocalstorage('subscriptionData');
+  const isActive = (raw as any)?.isActive ?? false;
   const isActiveTabDomainInExcludedDomains =
     await getIsActiveTabDomainInExcludedDomains();
   return (
@@ -206,8 +208,9 @@ async function getStyle() {
   return (await getFromLocalstorage('style')) || 'on';
 }
 
-async function finishTrial() {
-  await chrome.storage.local.set({ isActive: false });
+async function stopBlocking() {
+  setIsBlocking({ isBlocking: false });
+  reInitBlokingOnCurrentPage();
 }
 
 async function getFromLocalstorage(key: string) {

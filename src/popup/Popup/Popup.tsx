@@ -13,7 +13,7 @@ export const Popup = () => {
   const [isActive, setIsActive] = useState<boolean>(null);
   const [currentTab, setCurrentTab] = useState<TPopupTab>('home');
   const [isAuth, setIsAuth] = useState(false);
-  const [subcriptionData, setSubcriptionData] =
+  const [subscriptionData, setSubscriptionData] =
     useState<TSubscriptionData>(null);
   const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
 
@@ -37,9 +37,9 @@ export const Popup = () => {
         const data = (await res.json()) as TSubscriptionData;
         console.log('data', data);
 
-        setSubcriptionData(data);
+        setSubscriptionData(data);
         chrome.storage.local.set({
-          subcriptionData: data,
+          subscriptionData: data,
           email: data.email,
         });
       } catch (err) {
@@ -60,13 +60,6 @@ export const Popup = () => {
     });
   }, [isAuth]);
 
-  useEffect(() => {
-    if (isActive === null) return;
-    if (!isActive) {
-      setCurrentTab('upgrade');
-    }
-  }, [isActive]);
-
   const getCuttentTab = (tab: TPopupTab) => {
     switch (tab) {
       case 'home':
@@ -74,8 +67,8 @@ export const Popup = () => {
       case 'upgrade':
         return isAuth ? (
           <Upgrade
-            subscriptionData={subcriptionData}
-            setSubscriptionData={setSubcriptionData}
+            subscriptionData={subscriptionData}
+            setSubscriptionData={setSubscriptionData}
           />
         ) : null;
       case 'account':

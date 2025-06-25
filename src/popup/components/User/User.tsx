@@ -8,8 +8,16 @@ type TProps = {
 
 export const User = ({ email, setIsAuth }: TProps) => {
   const onSignOutClick = () => {
-    setIsAuth(false);
-    chrome.storage.local.clear();
+    chrome.storage.local.get(
+      ['targets', 'excludedDomains'],
+      ({ targets, excludedDomains }) => {
+        chrome.storage.local.clear();
+        chrome.storage.local.set({ targets, excludedDomains }, () => {
+          console.log('storage cleared');
+          setIsAuth(false);
+        });
+      }
+    );
   };
 
   return (

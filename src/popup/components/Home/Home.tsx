@@ -25,10 +25,13 @@ export const Home = ({ setCurrentTab }: TProps) => {
     useState(false);
   const [styleSwitchValue, setStyleSwitchValue] = useState(null);
   const [isStyleSwitchDisabled, setIsStyleSwitchDisabled] = useState(false);
+
   const onBlockingButtonClick = async () => {
-    const isActive = await chrome.storage.local.get('isActive').then(resp => {
-      return resp.isActive;
-    });
+    const isActive = await chrome.storage.local
+      .get('subscriptionData')
+      .then(resp => {
+        return resp?.subscriptionData?.isActive;
+      });
     if (!isActive) {
       setCurrentTab('upgrade');
       return;
@@ -79,15 +82,10 @@ export const Home = ({ setCurrentTab }: TProps) => {
   useEffect(() => {
     if (!domainId) return;
     chrome.runtime.sendMessage({ type: 'GET_IS_BLOCKING' }).then(resp => {
+      console.log('resp', resp);
       if (resp) setIsBlocking(resp);
     });
   }, [domainId]);
-
-  useEffect(() => {
-    chrome.storage.local.get(['isActive'], ({ isActive }) => {
-      if (!isActive) setIsBlocking(isActive);
-    });
-  }, []);
 
   useEffect(() => {
     if (!domainId) return;

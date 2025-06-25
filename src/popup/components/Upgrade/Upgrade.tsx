@@ -12,9 +12,8 @@ type TProps = {
 };
 
 export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const { isSubscriptionStarted, isActive, trialStartedAt } = subscriptionData;
+  const [isLoading, setIsLoading] = useState(false);
 
   const onStartTrialButtonClick = async () => {
     setIsLoading(true);
@@ -31,14 +30,31 @@ export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
         });
         const data = await res.json();
 
-        await chrome.storage.local.set({
-          isSubscriptionActive: data.isActive,
-          trialStartedAt: data.trialStartedAt,
-          trialDuration: data.trialDuration,
-          isActive: data.isActive,
+        chrome.storage.local.get(['subscriptionData'], result => {
+          const currentSettings = result.subscriptionData || {};
+
+          const updatedSettings = {
+            ...currentSettings,
+            trialStartedAt: data.trialStartedAt,
+            trialDuration: data.trialDuration,
+            isActive: data.isActive,
+          };
+
+          chrome.storage.local.set(
+            { subscriptionData: updatedSettings },
+            () => {
+              setSubscriptionData(prev => ({
+                ...prev,
+                trialStartedAt: data.trialStartedAt,
+                trialDuration: data.trialDuration,
+              }));
+            }
+          );
         });
       } catch (err) {
         console.error('Error create trial:', err);
+      } finally {
+        setIsLoading(false);
       }
     });
   };

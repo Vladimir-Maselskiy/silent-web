@@ -46,6 +46,8 @@ export const Account = ({
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  console.log('isAuth', isAuth);
+
   useEffect(() => {
     setNextPanel(activePanel === 'signUp' ? 'signIn' : 'signUp');
   }, [activePanel]);

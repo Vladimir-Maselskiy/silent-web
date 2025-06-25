@@ -6,9 +6,6 @@ import { domain } from '../../../assets/config/domain';
 type TProps = { plan: TBillingPlan; userId: string };
 export const BillingPlan = ({ plan, userId }: TProps) => {
   const { cost, defaultCost, duration, currencySymbol, description } = plan;
-  console.log('userId', userId);
-  console.log('cost', cost);
-  console.log('duration', duration);
 
   const encoded = btoa(JSON.stringify({ cost, userId, duration }));
   return (
