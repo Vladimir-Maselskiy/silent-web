@@ -103,63 +103,15 @@ export const Account = ({
   };
 
   const onGoogleAuthButtonClick = () => {
-    const CLIENT_ID =
-      '848495744147-54r8u6ovii2187l8srst0qtoevd88eod.apps.googleusercontent.com';
-    const REDIRECT_URI = chrome.identity.getRedirectURL();
-    const SCOPES = 'profile email';
-
-    const authUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth` +
-      `?client_id=${CLIENT_ID}` +
-      `&response_type=token` +
-      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-      `&scope=${encodeURIComponent(SCOPES)}` +
-      `&prompt=select_account`;
-
-    chrome.identity.launchWebAuthFlow(
-      {
-        url: authUrl,
-        interactive: true,
-      },
-      function (redirectUrl) {
-        if (chrome.runtime.lastError) {
-          console.error('Auth error:', chrome.runtime.lastError.message);
-          return;
-        }
-
-        const params = new URLSearchParams(
-          new URL(redirectUrl).hash.substring(1)
-        );
-        const accessToken = params.get('access_token');
-
-        if (!accessToken) {
-          console.error('Access token not found in redirect URL');
-          return;
-        }
-
-        setIsLoading(true);
-        fetch(`${domain}/api/users/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              chrome.storage.local.set({
-                userId: data.user._id,
-                email: data.user.email,
-              });
-              setIsAuth(true);
-            } else {
-              alert(data.error || 'Login failed');
-            }
-          })
-          .finally(() => {
-            setIsLoading(false);
-          });
+    setIsLoading(true);
+    chrome.runtime.sendMessage({ type: 'GOOGLE_AUTH' }, response => {
+      if (response?.success) {
+        setIsAuth(true);
+      } else {
+        alert(response?.error || 'Login failed');
       }
-    );
+      setIsLoading(false);
+    });
   };
 
   const renderPanel = (type: 'signUp' | 'signIn') => (

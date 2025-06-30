@@ -1,3 +1,4 @@
+import { domain } from '../assets/config/domain';
 import { checkSubscription } from './utils/checkSubscription';
 import { specialDomains } from './utils/specialDomains';
 
@@ -37,6 +38,8 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     getStyle().then(resp => response(resp));
   } else if (type === 'STOP_BLOCKING') {
     stopBlocking().then(resp => response(resp));
+  } else if (type === 'GOOGLE_AUTH') {
+    googleAuth().then(resp => response(resp));
   }
   return true;
 });
@@ -211,6 +214,59 @@ async function getStyle() {
 async function stopBlocking() {
   setIsBlocking({ isBlocking: false });
   reInitBlokingOnCurrentPage();
+}
+
+async function googleAuth() {
+  return new Promise(resolve => {
+    const CLIENT_ID =
+      '848495744147-54r8u6ovii2187l8srst0qtoevd88eod.apps.googleusercontent.com';
+    const REDIRECT_URI = chrome.identity.getRedirectURL();
+    const SCOPES = 'profile email';
+
+    const authUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth` +
+      `?client_id=${CLIENT_ID}` +
+      `&response_type=token` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&scope=${encodeURIComponent(SCOPES)}` +
+      `&prompt=select_account`;
+
+    chrome.identity.launchWebAuthFlow(
+      { url: authUrl, interactive: true },
+      async redirectUrl => {
+        if (chrome.runtime.lastError) return;
+
+        const params = new URLSearchParams(
+          new URL(redirectUrl).hash.substring(1)
+        );
+        const accessToken = params.get('access_token');
+
+        if (!accessToken) return;
+
+        fetch(`${domain}/api/users/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              chrome.storage.local.set({
+                userId: data.user._id,
+                email: data.user.email,
+              });
+              resolve({ success: true, data: data.user });
+            } else {
+              resolve({ success: false, data });
+            }
+          })
+          .catch(error => {
+            console.error('Error on googleAuth:', error);
+            resolve({ success: false, data: error });
+          });
+      }
+    );
+  });
 }
 
 async function getFromLocalstorage(key: string) {
