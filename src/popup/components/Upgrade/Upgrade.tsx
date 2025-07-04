@@ -12,7 +12,8 @@ type TProps = {
 };
 
 export const Upgrade = ({ subscriptionData, setSubscriptionData }: TProps) => {
-  const { isSubscriptionStarted, isActive, trialStartedAt } = subscriptionData;
+  const { isSubscriptionStarted, isActive, trialStartedAt } =
+    subscriptionData || {};
   const [isLoading, setIsLoading] = useState(false);
 
   const onStartTrialButtonClick = async () => {

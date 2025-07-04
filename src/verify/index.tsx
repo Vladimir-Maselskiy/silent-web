@@ -30,6 +30,7 @@ const App = () => {
         setHelpMessage('');
         setIsLoading(false);
         chrome.storage.local.set({ userId: res.userId });
+        chrome.storage.local.set({ email: res.email });
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
           const tab = tabs[0];
           if (!tab || !tab.url) return;

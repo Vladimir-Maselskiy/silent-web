@@ -219,7 +219,7 @@ async function stopBlocking() {
 async function googleAuth() {
   return new Promise(resolve => {
     const CLIENT_ID =
-      '848495744147-54r8u6ovii2187l8srst0qtoevd88eod.apps.googleusercontent.com';
+      '84396342494-7d7l4g8uaof8vjqdf6n209cjv38a2che.apps.googleusercontent.com';
     const REDIRECT_URI = chrome.identity.getRedirectURL();
     const SCOPES = 'profile email';
 
