@@ -217,55 +217,54 @@ async function stopBlocking() {
 }
 
 async function googleAuth() {
-  return new Promise(resolve => {
-    const CLIENT_ID =
-      '84396342494-7d7l4g8uaof8vjqdf6n209cjv38a2che.apps.googleusercontent.com';
-    const REDIRECT_URI = chrome.identity.getRedirectURL();
-    const SCOPES = 'profile email';
+  const CLIENT_ID =
+    '615964684051-86fc03c7525bd4po1ebpcit0do4r0q6l.apps.googleusercontent.com';
+  const REDIRECT_URI = `${domain}/api/auth/callback`;
+  const SCOPES = 'profile email';
 
-    const authUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth` +
-      `?client_id=${CLIENT_ID}` +
-      `&response_type=token` +
-      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-      `&scope=${encodeURIComponent(SCOPES)}` +
-      `&prompt=select_account`;
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/v2/auth` +
+    `?client_id=${CLIENT_ID}` +
+    `&response_type=code` +
+    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+    `&scope=${encodeURIComponent(SCOPES)}` +
+    `&prompt=select_account`;
 
-    chrome.identity.launchWebAuthFlow(
-      { url: authUrl, interactive: true },
-      async redirectUrl => {
-        if (chrome.runtime.lastError) return;
+  const authWindow = await chrome.windows.create({
+    url: authUrl,
+    type: 'popup',
+    width: 500,
+    height: 600,
+  });
 
-        const params = new URLSearchParams(
-          new URL(redirectUrl).hash.substring(1)
-        );
-        const accessToken = params.get('access_token');
+  return new Promise((resolve, reject) => {
+    const listener = async (tabId, changeInfo, tab) => {
+      try {
+        if (tab.windowId !== authWindow.id) return; // слухаємо тільки наше вікно
 
-        if (!accessToken) return;
+        if (changeInfo.url) {
+          const url = new URL(changeInfo.url);
 
-        fetch(`${domain}/api/users/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              chrome.storage.local.set({
-                userId: data.user._id,
-                email: data.user.email,
-              });
-              resolve({ success: true, data: data.user });
-            } else {
-              resolve({ success: false, data });
-            }
-          })
-          .catch(error => {
-            console.error('Error on googleAuth:', error);
-            resolve({ success: false, data: error });
-          });
+          if (url.hash.includes('access_token')) {
+            chrome.tabs.onUpdated.removeListener(listener); // прибираємо слухач
+
+            const urlParams = new URLSearchParams(url.search);
+            const email = urlParams.get('email');
+            const id = urlParams.get('id');
+
+            await chrome.storage.local.set({ userId: id, email: email });
+            await chrome.windows.remove(authWindow.id);
+
+            resolve({ success: true, id, email });
+          }
+        }
+      } catch (err) {
+        chrome.tabs.onUpdated.removeListener(listener);
+        reject(err);
       }
-    );
+    };
+
+    chrome.tabs.onUpdated.addListener(listener);
   });
 }
 

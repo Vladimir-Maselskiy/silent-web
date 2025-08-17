@@ -70,7 +70,9 @@ export const Options = () => {
     if (message.type === 'UPDATE_TARGETS') {
       onSelectOption({ key: webResourceKey });
       setWebResourceLabel(getWebResourceByKey(webResourceKey));
+      response(true);
     }
+    return true;
   });
 
   const showModal = () => setIsModalOpen(true);
