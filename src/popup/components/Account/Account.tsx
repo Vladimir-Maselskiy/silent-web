@@ -119,7 +119,7 @@ export const Account = ({
       justify="center"
       align="center"
       vertical
-      gap={16}
+      // gap={16}
       style={{ padding: 20, height: 372, width: '50%' }}
     >
       <Typography.Title level={3}>
@@ -131,15 +131,34 @@ export const Account = ({
         }}
       >
         <Button
-          icon={<img src="/google-logo.png" style={{ width: 20 }} />}
+          icon={
+            <img src="/google-logo.png" style={{ width: 20, marginTop: 16 }} />
+          }
           onClick={onGoogleAuthButtonClick}
         >
           Continue with Google
         </Button>
-        <Button icon={<EmailIcon />} onClick={() => onEmailButtonClick(type)}>
-          {type === 'signUp' ? 'Continue with Email' : 'Sign in with Email'}
-        </Button>
       </ConfigProvider>
+      <Flex vertical align="end" style={{ marginTop: 16 }}>
+        <ConfigProvider
+          button={{
+            className: styles.buttonStyle,
+          }}
+        >
+          <Button icon={<EmailIcon />} onClick={() => onEmailButtonClick(type)}>
+            {type === 'signUp' ? 'Continue with Email' : 'Sign in with Email'}
+          </Button>
+        </ConfigProvider>
+        <Button
+          type="link"
+          href={`${domain}/forgot-password`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ padding: 0 }}
+        >
+          Forgot password?
+        </Button>
+      </Flex>
       <Typography.Text>
         {type === 'signIn'
           ? "Don't have an account?"
