@@ -139,7 +139,11 @@ export const Account = ({
           Continue with Google
         </Button>
       </ConfigProvider>
-      <Flex vertical align="end" style={{ marginTop: 16 }}>
+      <Flex
+        vertical
+        align="end"
+        style={{ position: 'relative', marginTop: 16 }}
+      >
         <ConfigProvider
           button={{
             className: styles.buttonStyle,
@@ -149,17 +153,19 @@ export const Account = ({
             {type === 'signUp' ? 'Continue with Email' : 'Sign in with Email'}
           </Button>
         </ConfigProvider>
-        <Button
-          type="link"
-          href={`${domain}/forgot-password`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ padding: 0 }}
-        >
-          Forgot password?
-        </Button>
+        {type === 'signIn' && (
+          <Button
+            type="link"
+            href={`${domain}/forgot-password`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ padding: 0, position: 'absolute', bottom: -30 }}
+          >
+            Forgot password?
+          </Button>
+        )}
       </Flex>
-      <Typography.Text>
+      <Typography.Text style={{ marginTop: 50 }}>
         {type === 'signIn'
           ? "Don't have an account?"
           : 'Already have an account?'}
