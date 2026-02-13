@@ -1,1 +1,2 @@
-export const domain = 'http://localhost:3000/api';
+// export const domain = 'http://localhost:3000';
+export const domain = 'https://sluk.vercel.app';

@@ -48,7 +48,6 @@
     async function startBlocking() {
       const targets = await getTargets();
       const hideStyle = await chrome.runtime.sendMessage({ type: 'GET_STYLE' });
-      // console.log('[all domains] hideStyle', hideStyle);
 
       hideTargets({ targets, hideStyle });
       startObserber({ targets, hideStyle });
@@ -168,9 +167,9 @@
     chrome.runtime.onMessage.addListener(async (request, sender, response) => {
       if (request.type === 'REINIT_BLOCKING' && isDefaultCanBeBlocking) {
         startScript();
-
-        return response(true);
+        response(true);
       }
+      return true;
     });
   }
 })();

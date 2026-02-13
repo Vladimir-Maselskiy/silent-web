@@ -35,7 +35,6 @@ export const OptionsModal = ({
   };
 
   const onChange = (list: string[]) => {
-    console.log(list);
     setCheckedList(list);
   };
 

@@ -16,6 +16,7 @@
     'div[data-testid="aberdeen-card"]',
     'div[data-testid="liverpool-card"]',
     'div[data-testid="glastonbury-card"]',
+    'figure',
   ];
 
   const shadowDomSelectors = [];
@@ -46,7 +47,7 @@
     hideShadowDomTargetsModuleImport,
   ]);
 
-  const selectors = defaultSelectors.getDefaultSelectors();
+  const selectors = [...defaultSelectors.getDefaultSelectors(), 'figcaption'];
   let observer = null;
 
   async function startScript() {
@@ -122,8 +123,8 @@
   chrome.runtime.onMessage.addListener(async (request, sender, response) => {
     if (request.type === 'REINIT_BLOCKING') {
       startScript();
-
-      return response(true);
+      response(true);
     }
+    return true;
   });
 })();

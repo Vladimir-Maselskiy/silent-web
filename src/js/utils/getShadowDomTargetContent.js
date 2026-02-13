@@ -6,7 +6,6 @@ export const getShadowDomTargetContent = ({
   if (!el || !el.shadowRoot) return null;
   const { target: targetValue, ignoreCase } = target;
   const elementText = el.textContent;
-  console.log('getShadowDomTargetContent after', elementText);
   const isMatch = ignoreCase
     ? elementText.toLowerCase().includes(targetValue.toLowerCase())
     : elementText.includes(targetValue);

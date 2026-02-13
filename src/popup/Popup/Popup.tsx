@@ -1,176 +1,102 @@
-import { Button, Divider, Flex, Switch, Typography } from 'antd';
+import { Divider } from 'antd';
 import { Header } from '../components/Header/Header';
 import { useEffect, useState } from 'react';
-import {
-  PauseOutlined,
-  PlaySquareOutlined,
-  RedditOutlined,
-} from '@ant-design/icons';
-import { AddNewTargetInput } from '../components/AddNewTargetInput/AddNewTargetInput';
 
-const IconMap = {
-  '2': <RedditOutlined style={{ fontSize: '24px' }} />,
-};
+import { Home } from '../components/Home/Home';
+import { Navigation } from '../components/Navigation/Navigation';
+import { TPopupTab, TSubscriptionData } from '../../types/types';
+import { Account } from '../components/Account/Account';
+import { domain } from '../../assets/config/domain';
+import { Upgrade } from '../components/Upgrade/Upgrade';
 
 export const Popup = () => {
-  const [domain, setDomain] = useState('');
-  const [domainId, setDomainId] = useState('1');
-  const [isBlocking, setIsBlocking] = useState(undefined);
-  const [isDomainInExcludedDomains, setIsDomainInExcludedDomains] =
-    useState(false);
-  const [styleSwitchValue, setStyleSwitchValue] = useState(null);
-  const [isStyleSwitchDisabled, setIsStyleSwitchDisabled] = useState(false);
+  const [isActive, setIsActive] = useState<boolean>(null);
+  const [currentTab, setCurrentTab] = useState<TPopupTab>('home');
+  const [isAuth, setIsAuth] = useState(false);
+  const [subscriptionData, setSubscriptionData] =
+    useState<TSubscriptionData>(null);
+  const [isAuthFormVisible, setIsAuthFormVisible] = useState(false);
 
   useEffect(() => {
-    (async function () {
-      const isDomainInExcludedDomains = await chrome.runtime.sendMessage({
-        type: 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS',
-      });
-      setIsDomainInExcludedDomains(isDomainInExcludedDomains);
-    })();
-  }, []);
-
-  useEffect(() => {
-    try {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        let tab = tabs[0];
-        if (tab.url) {
-          const url = new URL(tab.url);
-          const domain = url.hostname;
-          setDomain(domain);
+    if (!isAuth) return;
+    chrome.storage.local.get(['userId'], async ({ userId }) => {
+      if (!userId) {
+        setIsActive(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${domain}/api/check-subscription`, {
+          method: 'POST',
+          body: JSON.stringify({ userId }),
+        });
+        if (!res.ok) {
+          chrome.storage.local.remove(['userId']);
+          setIsAuth(false);
+          return;
         }
-      });
-      chrome.runtime.sendMessage({ type: 'GET_STYLE' }).then(resp => {
-        if (resp) {
-          setStyleSwitchValue(resp);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+        const data = (await res.json()) as TSubscriptionData;
+        console.log('data', data);
 
-  useEffect(() => {
-    if (!domain) return;
-    if (domain === 'www.reddit.com') {
-      setDomainId('2');
-    } else {
-      setDomainId('1');
-    }
-  }, [domain]);
-
-  useEffect(() => {
-    if (!domainId) return;
-    chrome.runtime.sendMessage({ type: 'GET_IS_BLOCKING' }).then(resp => {
-      if (resp) setIsBlocking(resp);
-    });
-  }, [domainId]);
-
-  useEffect(() => {
-    if (!domainId) return;
-    chrome.runtime.sendMessage({
-      type: 'SET_IS_BLOCKING',
-      data: { isBlocking },
-    });
-    isBlocking
-      ? setIsStyleSwitchDisabled(false)
-      : setIsStyleSwitchDisabled(true);
-  }, [isBlocking]);
-
-  const onBlockingButtonClick = () => {
-    setIsBlocking(prev => !prev);
-  };
-
-  const onStyleSwitchChange = async (value: boolean) => {
-    const view = value ? 'on' : 'off';
-    await chrome.runtime.sendMessage({ type: 'SET_STYLE', data: view });
-    chrome.runtime.sendMessage({ type: 'GET_STYLE' }).then(resp => {
-      if (resp) {
-        setStyleSwitchValue(resp);
+        setSubscriptionData(data);
+        chrome.storage.local.set({
+          subscriptionData: data,
+          email: data.email,
+        });
+      } catch (err) {
+        console.error('Error checking subscription:', err);
+        setIsActive(false);
       }
     });
-  };
+  }, [isAuth]);
 
-  const toggleDomainInExcludedDomains = async () => {
-    if (isDomainInExcludedDomains) {
-      const result = await chrome.runtime.sendMessage({
-        type: 'REMOVE_CURRENT_DOMAIN_FROM_EXCLUDED_DOMAINS',
-      });
-      console.log(result);
-    } else {
-      const result = await chrome.runtime.sendMessage({
-        type: 'ADD_CURRENT_DOMAIN_TO_EXCLUDED_DOMAINS',
-      });
-      console.log(result);
-    }
-    const newValue = await chrome.runtime.sendMessage({
-      type: 'GET_IS_ACTIVE_TAB_DOMAIN_IN_EXCLUDED_DOMAINS',
+  useEffect(() => {
+    if (isAuth) return;
+    chrome.storage.local.get(['userId'], ({ userId }) => {
+      if (userId) {
+        setIsAuth(true);
+      } else {
+        setCurrentTab('account');
+      }
     });
-    console.log('newValue', newValue);
-    setIsDomainInExcludedDomains(newValue);
-    chrome.runtime.sendMessage({ type: 'REINIT_BLOCKING' });
-  };
+  }, [isAuth]);
 
-  const onUpgadePlanButtonClick = () => {
-    chrome.tabs.create({ url: 'https://sluk-next.vercel.app/' });
+  const getCuttentTab = (tab: TPopupTab) => {
+    switch (tab) {
+      case 'home':
+        return isAuth ? <Home setCurrentTab={setCurrentTab} /> : null;
+      case 'upgrade':
+        return isAuth ? (
+          <Upgrade
+            subscriptionData={subscriptionData}
+            setSubscriptionData={setSubscriptionData}
+          />
+        ) : null;
+      case 'account':
+        return (
+          <Account
+            isAuth={isAuth}
+            setIsAuth={setIsAuth}
+            isAuthFormVisible={isAuthFormVisible}
+            setIsAuthFormVisible={setIsAuthFormVisible}
+          />
+        );
+    }
   };
-
   return (
     <>
       <Header />
       <Divider style={{ marginBottom: '8px' }} />
-      {domain && (
-        <Flex vertical align="center">
-          <Typography.Text>domain name:</Typography.Text>
-          <Flex align="center" justify="center" gap={8}>
-            <Typography.Text style={{ fontSize: '24px' }}>
-              {domain}
-            </Typography.Text>
-            {IconMap[domainId]}
-          </Flex>
 
-          <Typography.Text style={{ color: 'red', minHeight: '24px' }}>
-            {isDomainInExcludedDomains ? 'is in excluded domains' : ' '}
-          </Typography.Text>
-          <Divider style={{ marginTop: 0 }} />
-          <AddNewTargetInput />
-          <Divider />
-          <Button type="dashed" onClick={toggleDomainInExcludedDomains}>
-            {isDomainInExcludedDomains
-              ? 'Remove domain from excluded'
-              : 'Add domain to excluded'}
-          </Button>
-          <Divider />
-        </Flex>
-      )}
-      <Flex justify="space-around" align="center" gap={8}>
-        <Button
-          type="primary"
-          disabled={!domainId}
-          icon={isBlocking ? <PauseOutlined /> : <PlaySquareOutlined />}
-          onClick={onBlockingButtonClick}
-        >
-          {isBlocking ? 'Stop blocking' : 'Start blocking'}
-        </Button>
-        {styleSwitchValue && (
-          <Switch
-            onChange={onStyleSwitchChange}
-            checkedChildren="Blur"
-            unCheckedChildren="Remove"
-            checked={styleSwitchValue === 'on'}
-            disabled={isStyleSwitchDisabled}
-          />
-        )}
-      </Flex>
-      <Divider />
-      <Flex justify="center">
-        <Button
-          onClick={onUpgadePlanButtonClick}
-          style={{ backgroundColor: '#637680', color: 'white' }}
-        >
-          Upgrade to Pro
-        </Button>
-      </Flex>
+      {getCuttentTab(currentTab)}
+
+      <Navigation
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        isAuth={isAuth}
+        setIsAuth={setIsAuth}
+        isActive={isActive}
+        setIsAuthFormVisible={setIsAuthFormVisible}
+      />
     </>
   );
 };
