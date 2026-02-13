@@ -4,7 +4,7 @@ import type { InputRef } from 'antd';
 import { Input, Tag, theme } from 'antd';
 import { TweenOneGroup } from 'rc-tween-one';
 
-export const ExludedDomains = () => {
+export const ExcludedDomains = () => {
   const { token } = theme.useToken();
   const [tags, setTags] = useState([]);
   const [inputVisible, setInputVisible] = useState(false);
@@ -105,7 +105,7 @@ export const ExludedDomains = () => {
         />
       ) : (
         <Tag onClick={showInput} style={tagPlusStyle}>
-          <PlusOutlined /> Add exluded domain
+          <PlusOutlined /> Add excluded domain
         </Tag>
       )}
     </>

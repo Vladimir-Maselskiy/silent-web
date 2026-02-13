@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   CheckOutlined,
   CloseOutlined,
+  CommentOutlined,
   DeleteOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
@@ -15,6 +16,7 @@ import {
   Popover,
   Spin,
   Table,
+  Tooltip,
   Typography,
 } from 'antd';
 import { Logo } from '../../../popup/components/Logo/Logo';
@@ -22,7 +24,8 @@ import { webResourceItems } from './menuItems';
 import { SelectInfo } from 'rc-menu/lib/interface';
 import { OptionsModal } from '../Modal/Modal';
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
-import { ExludedDomains } from '../ExludedDomains/ExludedDomains';
+import { ExcludedDomains } from '../ExcludedDomains/ExcludedDomains';
+import { domain } from '../../../assets/config/domain';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -40,7 +43,7 @@ export const Options = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [exludeDomainsSetting, setExludeDomainsSetting] = useState(false);
+  const [excludeDomainsSetting, setExcludeDomainsSetting] = useState(false);
 
   useEffect(() => {
     onSelectOption({ key: '1' });
@@ -178,11 +181,11 @@ export const Options = () => {
 
   const onSelectOption = async (e: SelectInfo | { key: string }) => {
     if (e.key === '2') {
-      setExludeDomainsSetting(true);
+      setExcludeDomainsSetting(true);
       setWebResourceKey(e.key);
       return;
     }
-    setExludeDomainsSetting(false);
+    setExcludeDomainsSetting(false);
     setWebResourceKey(e.key);
     setIsLoading(true);
     const targets = await chrome.runtime.sendMessage({
@@ -193,9 +196,25 @@ export const Options = () => {
     setIsLoading(false);
   };
 
+  const onFeedbackButtonClick = () => {
+    chrome.storage.local.get(['email'], ({ email }) => {
+      const url = new URL(`${domain}/feedback`);
+
+      if (email) {
+        url.searchParams.set('email', email);
+      }
+
+      window.open(url.toString(), '_blank');
+    });
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="light" width={300} style={{ width: 500 }}>
+      <Sider
+        theme="light"
+        width={300}
+        style={{ position: 'relative', width: 500 }}
+      >
         <Logo style={{ padding: 20 }} />
         <Menu
           style={{ borderTop: '1px solid #ccc', padding: 20 }}
@@ -206,6 +225,18 @@ export const Options = () => {
           items={webResourceItems}
           onSelect={onSelectOption}
         />
+
+        <Flex
+          style={{ position: 'absolute', right: 0, bottom: 0, padding: '16px' }}
+        >
+          <Tooltip title="feedback">
+            <Button
+              shape="circle"
+              icon={<CommentOutlined />}
+              onClick={onFeedbackButtonClick}
+            />
+          </Tooltip>
+        </Flex>
       </Sider>
       <Layout style={{ height: 'calc(100vh-60px)' }}>
         <Content
@@ -246,7 +277,7 @@ export const Options = () => {
                 >
                   <Spin indicator={<LoadingOutlined spin />} size="large" />
                 </Flex>
-              ) : !exludeDomainsSetting ? (
+              ) : !excludeDomainsSetting ? (
                 <>
                   <Table
                     dataSource={targets}
@@ -264,7 +295,7 @@ export const Options = () => {
                   </Flex>
                 </>
               ) : (
-                <ExludedDomains />
+                <ExcludedDomains />
               )}
             </div>
           </Flex>

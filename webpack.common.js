@@ -105,7 +105,7 @@ function getHtlmPlugins(chunks) {
   return chunks.map(
     chunk =>
       new HtmlWebpackPlugin({
-        title: 'A-ReactJS',
+        title: `Sluk.com`,
         filename: `${chunk}.html`,
         chunks: [chunk],
       })
