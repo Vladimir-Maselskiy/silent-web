@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 const plans = [
   {
     id: '1',
-    cost: 0.8333333,
+    cost: 0.75,
     defaultCost: 1,
     currency: 'EUR',
     duration: 12,
