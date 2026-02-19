@@ -4,7 +4,7 @@ import type { InputRef } from 'antd';
 import { Input, Tag, theme } from 'antd';
 import { TweenOneGroup } from 'rc-tween-one';
 
-export const ExludedDomains = () => {
+export const ExcludedDomains = () => {
   const { token } = theme.useToken();
   const [tags, setTags] = useState([]);
   const [inputVisible, setInputVisible] = useState(false);
@@ -22,7 +22,6 @@ export const ExludedDomains = () => {
       const excludedDomains = await chrome.runtime.sendMessage({
         type: 'GET_EXCLUDED_DOMAINS',
       });
-      console.log('excludedDomains', excludedDomains);
 
       setTags(excludedDomains);
     })();
@@ -37,7 +36,6 @@ export const ExludedDomains = () => {
 
   const handleClose = (removedTag: string) => {
     const newTags = tags.filter(tag => tag !== removedTag);
-    console.log(newTags);
     setTags(newTags);
   };
 
@@ -107,7 +105,7 @@ export const ExludedDomains = () => {
         />
       ) : (
         <Tag onClick={showInput} style={tagPlusStyle}>
-          <PlusOutlined /> Add exluded domain
+          <PlusOutlined /> Add excluded domain
         </Tag>
       )}
     </>

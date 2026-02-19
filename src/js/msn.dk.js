@@ -61,11 +61,8 @@
     }
   }
 
-  const shadowDomtargetsTagNames = [];
-
   const resizeObserver = new ResizeObserver(_ => {
     startScript();
-    console.log('Розмір змінено у:');
   });
 
   async function startBlocking() {
@@ -88,8 +85,6 @@
       hideStyle,
     });
 
-    console.log('shadowDomtargets', shadowDomtargetRefs);
-    console.log('shadowDomtargetsTagNames', shadowDomtargetsTagNames);
     startObserber({ targets, hideStyle });
     resizeObserver.observe(document.body);
   }
@@ -235,8 +230,8 @@
   chrome.runtime.onMessage.addListener(async (request, sender, response) => {
     if (request.type === 'REINIT_BLOCKING') {
       startScript();
-
-      return response(true);
+      response(true);
     }
+    return true;
   });
 })();

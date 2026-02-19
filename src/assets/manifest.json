@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.13",
+  "version": "1.1.16",
   "name": "Sluk",
   "description": "Tools for remove web content",
   "icons": {
@@ -13,6 +13,7 @@
     "default_title": "A-React-Title",
     "default_popup": "popup.html"
   },
+
   "permissions": ["storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -107,7 +108,7 @@
       "css": ["style.css"]
     },
     {
-      "matches": ["*://*.cnn.com/"],
+      "matches": ["*://*.cnn.com/*"],
       "js": ["cnn.com.js"],
       "css": ["style.css"]
     },
@@ -143,6 +144,12 @@
     {
       "resources": ["*.js"],
       "matches": ["*://*/*"]
+    },
+    {
+      "resources": ["verify.html"],
+      "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "incognito": "not_allowed",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw8BEQGZGd1v/CS42gVw24IhAQmTb+Mg8M9DBM+5OarFAR4Wi5iQYiZtOm8xFkDVTYDLqGUagWmEexdYI2a+nes0SxDZmSZ9eL4JOHvZguvKT8EiECB9iyCSP5cvNDNQbylV1m03ixoM7SuRvw9TlmVUvRqb2sjjqSbmuAtKfJSnnfktLjSbcovqAnLbkmUjLZ4TQpCMGm53I4/g7kjLs3gATnlJBuJK+fO7E+Z103vpW6P6CLPNszc0lYwWzexEXJn9ijJJ5mBmIzlHCZj6rtZp0lduVQwJHVM3oGLLAb7Y8U5gQn8D4QbQ72bSNjxnQT5DJxKb5EXj49WjmM8rcSwIDAQAB"
 }

@@ -1,5 +1,17 @@
+html {
+  overflow: hidden;
+  max-height: 580px;
+}
+
 body {
   width: 400px;
+  min-height: 580px;
+  max-height: 580px;
   background-color: rgb(246, 246, 246);
-  padding: 20px;
+  margin: 0;
+  overflow: hidden;
+}
+
+body > div {
+  min-height: 500px;
 }
